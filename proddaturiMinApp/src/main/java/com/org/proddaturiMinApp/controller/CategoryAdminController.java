@@ -28,6 +28,7 @@ public class CategoryAdminController {
 
     @PutMapping("/updateCategory/{categoryId}")
     public String updateCategory(@RequestBody Category category, @PathVariable String categoryId) {
+        System.out.println("verified");
         return categoryService.updateCategory(category, categoryId);
     }
 
