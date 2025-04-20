@@ -2,12 +2,15 @@ package com.org.proddaturiMinApp.service;
 
 import com.org.proddaturiMinApp.model.User;
 
+import java.util.Map;
+
 public interface UserService {
-    public String generateOtp(long mobileNumber);
+    public String generateOtp(String mobileNumber);
 
-    public boolean validateOtp(long mobileNumber, String userOtp);
+    public boolean validateOtp(String mobileNumber, String userOtp);
 
-    public Boolean validateOtpAndSaveUser(String username, long mobileNumber, String otp);
+    public Boolean validateOtpAndSaveUser(String username, String mobileNumber, String otp);
 
-    public Boolean updateUserData(long mobileNumber, User user);
+    public Boolean updateUserData(String mobileNumber, User user);
+    public String updateUserAddress(String mobileNumber, Map<String, Object> address);
 }
