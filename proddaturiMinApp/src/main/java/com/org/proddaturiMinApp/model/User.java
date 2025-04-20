@@ -8,16 +8,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "proddatur10MinutesApp")
+@Document(collection = "users")
 public class User {
     @Id
     private String id;
-    private long mobileNumber;
+    private String phoneNumber;
     private String userName;
+    private Map<String, Object> address;
 
 }
