@@ -1,7 +1,7 @@
 package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.model.Product;
-import com.org.proddaturiMinApp.service.ProductService;
+import com.org.proddaturiMinApp.service.impl.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/admin/products")
 public class ProductAdminController {
     @Autowired
-    private ProductService productService;
+    private ProductServiceImpl productService;
 
     @PostMapping("/add")
     public Product addProduct(@RequestBody Product product) {

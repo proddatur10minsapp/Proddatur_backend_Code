@@ -2,7 +2,7 @@ package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.ProductRepository;
-import com.org.proddaturiMinApp.service.ProductService;
+import com.org.proddaturiMinApp.service.impl.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +15,7 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private ProductService productService;
+    private ProductServiceImpl productService;
 
     @GetMapping("/getProducts/{category}")
     public List<Product> getProducts(@PathVariable("category") String category) {
