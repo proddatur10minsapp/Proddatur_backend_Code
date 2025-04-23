@@ -20,6 +20,4 @@ public class Product {
     private int price;
     private int discountPrice;
     private int quantity;
-
-
 }

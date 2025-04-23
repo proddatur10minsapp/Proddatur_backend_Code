@@ -1,5 +1,6 @@
-package com.org.proddaturiMinApp.service;
+package com.org.proddaturiMinApp.service.impl;
 
+import com.org.proddaturiMinApp.service.UserService;
 import com.org.proddaturiMinApp.utils.commonConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class UserServiceImple implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImple.class);
+public class UserServiceImpl implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final SecureRandom random = new SecureRandom();
     public static String otp = String.format("%06d", random.nextInt(1000000)); // Generate 6-digit OTP
     private final int OTP_EXPIRY_MINUTES = commonConstants.otpExpireTime;
@@ -45,7 +46,7 @@ public class UserServiceImple implements UserService {
     public Boolean validateOtpAndSaveUser(String userName, String mobileNumber, String otp) {
         final String updatedId = commonutils.generateUserId();
         if (validateOtp(mobileNumber, otp)) {
-            if (!userRepository.existsByphoneNumber(mobileNumber)) {
+            if (!userRepository.existsByPhoneNumber(mobileNumber)) {
                 User newUser = new User(updatedId, mobileNumber, userName, null);
                 userRepository.save(newUser);
                 return true;
@@ -56,7 +57,7 @@ public class UserServiceImple implements UserService {
 
     // code for update username or Mobile Number  based on mobile number
     public Boolean updateUserData(String mobileNumber, User user) {
-        Optional<User> userdata = userRepository.findByphoneNumber(mobileNumber);
+        Optional<User> userdata = userRepository.findByPhoneNumber(mobileNumber);
         String userName = user.getUserName();
         String updatedMobileNumber = user.getPhoneNumber();
         if (userdata.isPresent()) {
@@ -70,7 +71,7 @@ public class UserServiceImple implements UserService {
     }
 
     public String updateUserAddress(String mobileNumber, Map<String, Object> address) {
-        Optional<User> optionalUser = userRepository.findByphoneNumber(mobileNumber);
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(mobileNumber);
 
         if (optionalUser.isEmpty()) {
             return "User not found with mobile number: " + mobileNumber;
