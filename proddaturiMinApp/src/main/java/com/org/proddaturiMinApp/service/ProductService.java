@@ -72,19 +72,40 @@ public class ProductService implements ProductServiceInterface {
         return productRepository.saveAll(products);
     }
 
+//    public Product updateProduct(String id, Product updatedProduct) {
+//        String productName = updatedProduct.getName();
+//        String productImage = updatedProduct.getImage();
+//        int price = updatedProduct.getPrice();
+//        int stock = updatedProduct.getQuantity();
+//        return productRepository.findById(id).map(product -> {
+//            if (productName != null) product.setName(productName);
+//            if (productImage != null) product.setImage(productImage);
+//            if (price != 0.0) product.setPrice(price);
+//            if (stock != 0) product.setQuantity(stock);
+//            return productRepository.save(product);
+//        }).orElseThrow(() -> new RuntimeException(commonConstants.productNotFound + "with id" + id));
+//    }
+
     public Product updateProduct(String id, Product updatedProduct) {
-        String productName = updatedProduct.getName();
-        String productImage = updatedProduct.getImage();
-        int price = updatedProduct.getPrice();
-        int stock = updatedProduct.getQuantity();
-        return productRepository.findById(id).map(product -> {
-            if (productName != null) product.setName(productName);
-            if (productImage != null) product.setImage(productImage);
-            if (price != 0.0) product.setPrice(price);
-            if (stock != 0) product.setQuantity(stock);
-            return productRepository.save(product);
-        }).orElseThrow(() -> new RuntimeException(commonConstants.productNotFound + "with id" + id));
+        return productRepository.findById(id).map(existingProduct -> {
+            if (updatedProduct.getName() != null) {
+                existingProduct.setName(updatedProduct.getName());
+            }
+            if (updatedProduct.getImage() != null) {
+                existingProduct.setImage(updatedProduct.getImage());
+            }
+            if (updatedProduct.getPrice() > 0) {
+                existingProduct.setPrice(updatedProduct.getPrice());
+            }
+            if (updatedProduct.getQuantity() > 0) {
+                existingProduct.setQuantity(updatedProduct.getQuantity());
+            }
+            return productRepository.save(existingProduct);
+        }).orElseThrow(() ->
+                new RuntimeException(commonConstants.productNotFound + " with id: " + id)
+        );
     }
+
 
     public String deleteProductById(String id) {
         productRepository.deleteById(id);

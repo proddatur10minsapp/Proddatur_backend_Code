@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -18,8 +19,10 @@ public class CategoryService implements CategoryServiceInterface {
 
     public String addCategory(@RequestBody Category category) {
         Category response = categoryRepository.save(category);
-        if (response.getId() == null) return commonConstants.failedToSave + category.getName();
-        return commonConstants.dataSaved;
+
+        return response.getId() == null ? commonConstants.failedToSave + category.getName() : commonConstants.dataSaved;
+//        if (response.getId() == null) return commonConstants.failedToSave + category.getName();
+//        return commonConstants.dataSaved;
     }
 
     public Optional<Category> getCategoryById(@RequestBody String id) {
@@ -32,7 +35,7 @@ public class CategoryService implements CategoryServiceInterface {
 
     public String updateCategory(@RequestBody Category givenCategory, String categoryId) {
         Category filteredCategory = getCategoryById(categoryId).get();
-        if (givenCategory.getName() != null)
+        if (Objects.nonNull(filteredCategory) && givenCategory.getName() != null)
         {filteredCategory.setName(givenCategory.getName());}
         if (givenCategory.getImage() != null) filteredCategory.setImage(givenCategory.getImage());
         categoryRepository.save(filteredCategory);
