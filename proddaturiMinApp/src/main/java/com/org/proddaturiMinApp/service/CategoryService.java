@@ -21,8 +21,6 @@ public class CategoryService implements CategoryServiceInterface {
         Category response = categoryRepository.save(category);
 
         return response.getId() == null ? commonConstants.failedToSave + category.getName() : commonConstants.dataSaved;
-//        if (response.getId() == null) return commonConstants.failedToSave + category.getName();
-//        return commonConstants.dataSaved;
     }
 
     public Optional<Category> getCategoryById(@RequestBody String id) {
