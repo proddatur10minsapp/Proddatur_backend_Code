@@ -15,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -81,6 +78,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         log.info("user details saved successfully {} ",user);
         return  ResponseEntity.ok(user.toString());
+    }
+
+    @Override
+    public ResponseEntity<List<Address>> getDeliveryAddress(String mobileNumber) {
+        return null;
     }
 
 
