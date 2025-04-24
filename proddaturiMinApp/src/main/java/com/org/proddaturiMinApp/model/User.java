@@ -19,6 +19,6 @@ public class User {
     private String id;
     private String phoneNumber;
     private String userName;
-    private Map<String, Object> address;
+    private Map<String, Address> address;
 
 }
