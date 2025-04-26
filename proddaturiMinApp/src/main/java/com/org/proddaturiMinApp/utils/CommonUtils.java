@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class CommonUtils {
     @Autowired
     private UserRepository userRepository;
+    // this code is commmented because of build failure
     // public String generateUserId() {
     //     User lastUser = userRepository.findTopByOrderByIdDesc();  // Get last user details
     //     int nextId = 1;   //  if no users are present then set user id to 001 by default
