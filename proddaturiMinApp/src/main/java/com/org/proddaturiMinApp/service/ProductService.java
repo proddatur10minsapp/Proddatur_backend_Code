@@ -28,9 +28,7 @@ public class ProductService implements ProductServiceInterface {
 
         if (i >= allProducts.size()) return filteredProducts;
 
-        int loopLimit = Math.min(i + commonConstants.range, allProducts.size());
-
-        while (i < loopLimit) {
+        while (i < allProducts.size()) {
             Product product = allProducts.get(i);
             if (product.getCategory() == null) {
                 i++;
@@ -39,7 +37,7 @@ public class ProductService implements ProductServiceInterface {
 
             String productCategoryName = getCategoryNameById(product.getCategory());
             if (productCategoryName.equalsIgnoreCase(categoryName)) {
-                filteredProducts.add(product);
+                if (filteredProducts.size() <= commonConstants.range) filteredProducts.add(product);
             }
             i++;
         }
