@@ -76,12 +76,12 @@ public class ProductService implements ProductServiceInterface {
         String productName = updatedProduct.getName();
         String productImage = updatedProduct.getImage();
         int price = updatedProduct.getPrice();
-        int stock = updatedProduct.getQuantity();
+        String stock = updatedProduct.getQuantity();
         return productRepository.findById(id).map(product -> {
             if (productName != null) product.setName(productName);
             if (productImage != null) product.setImage(productImage);
             if (price != 0.0) product.setPrice(price);
-            if (stock != 0) product.setQuantity(stock);
+            if (stock != null) product.setQuantity(stock);
             return productRepository.save(product);
         }).orElseThrow(() -> new RuntimeException(commonConstants.productNotFound + "with id" + id));
     }
