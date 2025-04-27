@@ -12,12 +12,10 @@ public interface ProductService {
     List<Product> getProductsViaNextValue(String categoryName, int i);
     List<Product> allProducts();
     Optional<Product> getProductsById(String id);
-    Product saveProduct(Product products);
-    List<Product> saveAllProduct(List<Product> products);
-    Product updateProduct(String id, Product updatedProduct);
-    String deleteProductById(String id);
-    Category getCategory(Product product);
     String getCategoryNameById(String id);
+
+
+
 }
 
 

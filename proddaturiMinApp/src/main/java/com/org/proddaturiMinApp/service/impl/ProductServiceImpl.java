@@ -65,36 +65,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id);
     }
 
-    public Product saveProduct(Product products) {
-        return productRepository.save(products);
-    }
-
-    public List<Product> saveAllProduct(List<Product> products) {
-        return productRepository.saveAll(products);
-    }
-
-    public Product updateProduct(String id, Product updatedProduct) {
-        String productName = updatedProduct.getName();
-        String productImage = updatedProduct.getImage();
-        int price = updatedProduct.getPrice();
-        int stock = updatedProduct.getQuantity();
-        return productRepository.findById(id).map(product -> {
-            if (productName != null) product.setName(productName);
-            if (productImage != null) product.setImage(productImage);
-            if (price != 0.0) product.setPrice(price);
-            if (stock != 0) product.setQuantity(stock);
-            return productRepository.save(product);
-        }).orElseThrow(() -> new RuntimeException(commonConstants.productNotFound + "with id" + id));
-    }
-
-    public String deleteProductById(String id) {
-        productRepository.deleteById(id);
-        return commonConstants.productDeleted;
-    }
-
-    public Category getCategory(Product product) {
-        return categoryRepository.findById(product.getCategory()).orElse(null);
-    }
 
     public String getCategoryNameById(String categoryId) {
         return categoryRepository.findAll().stream()

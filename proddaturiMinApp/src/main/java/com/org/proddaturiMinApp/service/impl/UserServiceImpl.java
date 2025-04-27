@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.service.impl;
 
+import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
@@ -8,14 +9,15 @@ import com.org.proddaturiMinApp.repository.AddressRepository;
 import com.org.proddaturiMinApp.service.UserService;
 import com.org.proddaturiMinApp.model.User;
 import com.org.proddaturiMinApp.repository.UserRepository;
-import com.org.proddaturiMinApp.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ObjectInputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,35 +28,36 @@ public class UserServiceImpl implements UserService {
 
    @Autowired
     AddressRepository addressRepository;
-    @Autowired
-    private CommonUtils commonutils;
-
 
     // this getUserDetails method is used to fetch the user details based on the user
     @Override
-    public ResponseEntity<User> getUserDetails(String mobileNumber) throws InputFieldRequried, DetailsNotFound {
-        if(Objects.isNull(mobileNumber)){
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+        if(Objects.isNull(phoneNumber)){
             log.info("Mobile Number is mandatory");
             throw new InputFieldRequried("Mobile Number is mandatory");
         }
-        Optional<User> optionalUser = userRepository.findByPhoneNumber(mobileNumber);
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
-            log.error("User Not found for: {}",mobileNumber);
-            throw new DetailsNotFound(new StringBuilder().append("User Not found for: ").append(mobileNumber).toString());
+            log.error("User Not found for: {}",phoneNumber);
+            throw new DetailsNotFound(new StringBuilder().append("User Not found for: ").append(phoneNumber).toString());
         }
         User user= optionalUser.get();
         log.info("Used details found for the mobile Number :{}",user.toString());
-        return ResponseEntity.ok().body(user);
+        UserDetailsOutputDTO userDetailsOutputDTO=new UserDetailsOutputDTO();
+        userDetailsOutputDTO.setUser(user);
+        userDetailsOutputDTO.setAddressList(getDeliveryAddressList(user.getPhoneNumber()));
+        return ResponseEntity.ok().body(userDetailsOutputDTO);
     }
 
     // this method can be used to update userName , add new address into to the user
     @Override
     public ResponseEntity<String> updateUser(UserInputDTO userInputDTO) {
 
-        Optional<User> optionalUser = userRepository.findByPhoneNumber(userInputDTO.getMobileNumber());
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(userInputDTO.getPhoneNumber());
+
         if(optionalUser.isEmpty()){
-            log.error("User Not found for: {}",userInputDTO.getMobileNumber());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not found");
+            log.error("User Not found for: {}",userInputDTO.getPhoneNumber());
+            throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
         log.info("fetched user details are {} ",optionalUser.get());
@@ -63,101 +66,107 @@ public class UserServiceImpl implements UserService {
         }
         // to add the user Address
         if(Objects.nonNull(userInputDTO.getAddress())) {
+
             Address address = userInputDTO.getAddress();
+            String addressID=UUID.randomUUID().toString();
+            address.setId(addressID);
             if(Objects.nonNull(user.getAddress())){
-                user.getAddress().put(address.getType(),address);
-                log.info("Address is successfully added to the db for id  {} ",userInputDTO.getMobileNumber());
+                user.getAddress().put(address.getType(),addressID);
+                log.info("Address is successfully added to the db for id  {} ",userInputDTO.getPhoneNumber());
             }
             else{
-                Map<String , Address> addressMap = new HashMap<>();
-                addressMap.put(address.getType(),address);
+                Map<String , String> addressMap = new HashMap<>();
+                addressMap.put(address.getType(),addressID);
+                address.setIsDefault(true);
                 user.setAddress(addressMap);
-                log.info("Address map is null created map and  successfully added to the db for id  {} ",userInputDTO.getMobileNumber());
+                log.info("Address map is null created map and  successfully added to the db for id  {} ",userInputDTO.getPhoneNumber());
             }
+            address.setPhoneNumber(userInputDTO.getPhoneNumber());
+
+            addressRepository.save(address);
+            log.info("Added new address {}",address);
         }
         userRepository.save(user);
         log.info("user details saved successfully {} ",user);
         return  ResponseEntity.ok(user.toString());
     }
 
+    // To fetch all the address list to display
     @Override
-    public ResponseEntity<List<Address>> getDeliveryAddress(String mobileNumber) {
-        return null;
+    public List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried {
+        if(Objects.isNull(phoneNumber)){
+            log.info("Mobile Number is mandatory");
+            throw new InputFieldRequried("Mobile Number is mandatory");
+        }
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+        if(optionalUser.isEmpty()){
+            log.error("User Not found for: {}",phoneNumber);
+            throw new DetailsNotFound("User Not found");
+        }
+        User user=optionalUser.get();
+        log.info("fetched user details are {} ",user);
+        Map<String, String> allAddress = user.getAddress();
+        if(Objects.isNull(allAddress)){
+            throw new DetailsNotFound("No address Found for the User  "+user.getPhoneNumber());
+        }
+        List<Address> addressList = allAddress.values().stream()
+                .map(addressRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        return addressList;
+
+    }
+
+    @Override
+    public ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried {
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(userInputDTO.getPhoneNumber());
+
+        if(optionalUser.isEmpty()){
+            log.error("User Not found for: {}",userInputDTO.getPhoneNumber());
+            throw new DetailsNotFound("User Not found");
+        }
+        User user=optionalUser.get();
+        log.info("fetched user details are {} ",optionalUser.get());
+        Address address = userInputDTO.getAddress();
+        address.setId(UUID.randomUUID().toString());
+        address.setPhoneNumber(userInputDTO.getPhoneNumber());
+        Map<String, String> addressList = user.getAddress();
+        if(Objects.nonNull(addressList)){
+            // User Address Should be non-null
+
+            if(userInputDTO.getAddress().getIsDefault()){
+                addressList.values().stream()
+                        .map(addressId -> addressRepository.findById(addressId))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .peek(address1 -> address1.setIsDefault(false))
+                        .forEach(addressRepository::save);
+            }
+            addressList.put(address.getType(),address.getId());
+            log.info("New user address is added to the User address collection ");
+        }
+        else{
+            addressList=new HashMap<>();
+            user.setAddress(addressList);
+            //If user Address is null
+            if(!address.getIsDefault()){
+               address.setIsDefault(true);
+            }
+        }
+        // save the address
+        addressRepository.save(address);
+        // add the address type and the id with with user
+        addressList.put(address.getType(),address.getId());
+        log.info("There is no address for the user , new address is added for the user {}",user.getPhoneNumber());
+        userRepository.save(user);
+        log.info("{} , is updated successfully",user);
+        UserDetailsOutputDTO userDetailsOutputDTO=new UserDetailsOutputDTO();
+        userDetailsOutputDTO.setUser(user);
+        userDetailsOutputDTO.setAddressList(getDeliveryAddressList(user.getPhoneNumber()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDetailsOutputDTO);
     }
 
 
 }
-//    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-//    private static final SecureRandom random = new SecureRandom();
-//    public static String otp = String.format("%06d", random.nextInt(1000000)); // Generate 6-digit OTP
-//    private final int OTP_EXPIRY_MINUTES = commonConstants.otpExpireTime;
-//    private static String userMobileNumber;
-
-//
-//
-//
-//    // code for generate otp
-//    public String generateOtp(String mobileNumber) {
-//        userMobileNumber = mobileNumber;
-//        return otp;
-//    }
-//
-//    // code for validate otp
-//    public boolean validateOtp(String mobileNumber, String userOtp) {
-//        String finalOtp = otp;
-//        if ((finalOtp != null && finalOtp.trim().equals(userOtp.trim())) && (mobileNumber.equals(userMobileNumber))) {
-//            log.info("OTP validate successfully");
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    // code for validate otp and save user
-//    public Boolean validateOtpAndSaveUser(String userName, String mobileNumber, String otp) {
-//        final String updatedId = commonutils.generateUserId();
-//        if (validateOtp(mobileNumber, otp)) {
-//            if (!userRepository.existsByPhoneNumber(mobileNumber)) {
-//                User newUser = new User(updatedId, mobileNumber, userName, null);
-//                userRepository.save(newUser);
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    // code for update username or Mobile Number  based on mobile number
-//    public Boolean updateUserData(String mobileNumber, User user) {
-//        Optional<User> userdata = userRepository.findByPhoneNumber(mobileNumber);
-//        String userName = user.getUserName();
-//        String updatedMobileNumber = user.getPhoneNumber();
-//        if (userdata.isPresent()) {
-//            User userData = userdata.get();
-//            if (userName != null) userData.setUserName(userName);
-//            if (updatedMobileNumber != null) userData.setPhoneNumber(updatedMobileNumber);
-//            userRepository.save(userData);
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    public String updateUserAddress(String mobileNumber, Map<String, Object> address) {
-//        Optional<User> optionalUser = userRepository.findByPhoneNumber(mobileNumber);
-//
-//        if (optionalUser.isEmpty()) {
-//            return "User not found with mobile number: " + mobileNumber;
-//        }
-//
-//        // ✅ Validate required fields
-//        if (address.get("area") == null || address.get("street") == null) {
-//            return "Validation failed: 'area' and 'street' are required.";
-//        }
-//
-//        User user = optionalUser.get();
-//        user.setAddress(address); // ✅ replace existing address
-//        userRepository.save(user);
-//
-//        return "Address updated successfully!";
-//    }
-
-
-

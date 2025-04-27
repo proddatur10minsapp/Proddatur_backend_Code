@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.service;
 
+import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
@@ -11,18 +12,12 @@ import java.util.List;
 
 public interface UserService {
 
-    public ResponseEntity<User> getUserDetails(String mobileNumber) throws InputFieldRequried, DetailsNotFound;
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound;
 
     ResponseEntity<String> updateUser(UserInputDTO userInputDTO);
 
-    ResponseEntity<List<Address>> getDeliveryAddress(String mobileNumber);
+    List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried;
 
-//    public String generateOtp(String mobileNumber);
-//
-//    public boolean validateOtp(String mobileNumber, String userOtp);
-//
-//    public Boolean validateOtpAndSaveUser(String username, String mobileNumber, String otp);
-//
-//    public Boolean updateUserData(String mobileNumber, User user);
-//    public String updateUserAddress(String mobileNumber, Map<String, Object> address);
+    ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried;
+
 }

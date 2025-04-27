@@ -1,11 +1,10 @@
 package com.org.proddaturiMinApp.model;
 
-import jakarta.annotation.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
@@ -17,8 +16,9 @@ import java.util.Map;
 public class User {
     @Id
     private String id;
+    @NonNull
     private String phoneNumber;
     private String userName;
-    private Map<String, Address> address;
+    private Map<String, String> address;
 
 }
