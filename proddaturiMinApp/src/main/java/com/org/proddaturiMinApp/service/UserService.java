@@ -1,16 +1,23 @@
 package com.org.proddaturiMinApp.service;
 
+import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
+import com.org.proddaturiMinApp.dto.UserInputDTO;
+import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
+import com.org.proddaturiMinApp.model.Address;
 import com.org.proddaturiMinApp.model.User;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
+import java.util.List;
 
 public interface UserService {
-    public String generateOtp(String mobileNumber);
 
-    public boolean validateOtp(String mobileNumber, String userOtp);
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound;
 
-    public Boolean validateOtpAndSaveUser(String username, String mobileNumber, String otp);
+    ResponseEntity<String> updateUser(UserInputDTO userInputDTO);
 
-    public Boolean updateUserData(String mobileNumber, User user);
-    public String updateUserAddress(String mobileNumber, Map<String, Object> address);
+    List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried;
+
+    ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried;
+
 }

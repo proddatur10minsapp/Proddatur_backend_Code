@@ -1,7 +1,7 @@
 package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.model.Category;
-import com.org.proddaturiMinApp.service.CategoryService;
+import com.org.proddaturiMinApp.service.impl.CategoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class CategoryController {
     @Autowired
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
 
     @GetMapping("/getCategoryById/{categoryId}")
     public Optional<Category> getCategoryById(@PathVariable String categoryId) {
