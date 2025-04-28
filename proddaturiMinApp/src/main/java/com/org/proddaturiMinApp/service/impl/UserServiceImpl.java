@@ -2,6 +2,8 @@ package com.org.proddaturiMinApp.service.impl;
 
 import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
+import com.org.proddaturiMinApp.exception.CannotModifyException;
+import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Address;
@@ -15,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -165,6 +166,110 @@ public class UserServiceImpl implements UserService {
         userDetailsOutputDTO.setUser(user);
         userDetailsOutputDTO.setAddressList(getDeliveryAddressList(user.getPhoneNumber()));
         return ResponseEntity.status(HttpStatus.CREATED).body(userDetailsOutputDTO);
+    }
+
+    @Override
+    public ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress) {
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+
+        if(optionalUser.isEmpty()){
+            log.error("User Not found for: {}",phoneNumber);
+            throw new DetailsNotFound("User Not found");
+        }
+        User user=optionalUser.get();
+        log.info("fetched user details are {} ",optionalUser.get());
+        if(!user.getAddress().containsValue(addressId)){
+            log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
+            throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
+        }
+
+       Address address=addressRepository.findById(addressId).get();
+        address.setHouseNo(updatedAddress.getHouseNo());
+        address.setAreaOrStreet(updatedAddress.getAreaOrStreet());
+        address.setLandmark(updatedAddress.getLandmark());
+        address.setPincode(updatedAddress.getPincode());
+        address.setPhoneNumber(updatedAddress.getPhoneNumber());
+        if(Objects.nonNull(updatedAddress.getType())&&!address.getType().equalsIgnoreCase(updatedAddress.getType())){
+            user.getAddress().remove(address.getType());
+            address.setType(updatedAddress.getType());
+            user.getAddress().put(address.getType(),address.getId());
+            userRepository.save(user);
+            log.info("Address type is changed and updated to the db {} :{} /n address-{}",phoneNumber,user,address);
+        }
+
+        addressRepository.save(address);
+        log.info("address updated successfully for {} : {}",address.getPhoneNumber(),address);
+        return ResponseEntity.ok().body(address);
+    }
+
+    @Override
+    public ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException {
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+
+        if(optionalUser.isEmpty()){
+            log.error("User Not found for: {}",phoneNumber);
+            throw new DetailsNotFound("User Not found");
+        }
+        User user=optionalUser.get();
+        log.info("fetched user details are {} ",optionalUser.get());
+        if(!user.getAddress().containsValue(addressId)){
+            log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
+            throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
+        }
+
+        Address address=addressRepository.findById(addressId).get();
+        if(address.getIsDefault()){
+            throw new CannotModifyException("Default Address can't be modified please change the default to another first");
+        }
+        user.getAddress().remove(address.getType());
+        log.info("Address has been removed from the uesr collection {}:{}",phoneNumber,address);
+        userRepository.save(user);
+        log.info("user details updated successfully {} : {}",phoneNumber,user);
+        addressRepository.deleteById(addressId);
+        log.info("Address details removed successfully {}: {}",phoneNumber,address);
+        return  ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
+    }
+
+    @Override
+    public ResponseEntity<List<Address>> setAsDefaultUddress(String phoneNumber, String fromAddressId, String toAddressId) throws CommonExcepton, InputFieldRequried {
+        if(fromAddressId.equals(toAddressId)){
+            log.info("Both from and to address to set as default is same ,please check");
+            throw new CommonExcepton("Both from and to address to set as default is same ,please check");
+        }
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+
+        if(optionalUser.isEmpty()){
+            log.error("User Not found for: {}",phoneNumber);
+            throw new DetailsNotFound("User Not found");
+        }
+        User user=optionalUser.get();
+        log.info("fetched user details are {} ",optionalUser.get());
+        if(!user.getAddress().containsValue(fromAddressId)){
+            log.error("User address not found with the fromAddress id {} address {}",phoneNumber,fromAddressId);
+            throw new DetailsNotFound("Address Not found "+ phoneNumber+" fromSddressid "+ fromAddressId);
+        }
+        if(!user.getAddress().containsValue(toAddressId)){
+            log.error("User address not found with the toAddressId id {} address {}",phoneNumber,toAddressId);
+            throw new DetailsNotFound("Address Not found "+ phoneNumber+" toAddressId "+ toAddressId);
+        }
+        Address fromAddress=addressRepository.findById(fromAddressId).get();
+        if(!fromAddress.getIsDefault()){
+            log.info("formAddress is not a default addresss {} : {}",phoneNumber,fromAddress);
+            throw new CommonExcepton("formAddress is not a default addresss");
+        }
+        Address toAddress=addressRepository.findById(toAddressId).get();
+        if(toAddress.getIsDefault()){
+            log.info("toAddress is already  default addresss {} : {}",phoneNumber,fromAddress);
+            throw new CommonExcepton("toAddress is already  default addresss");
+        }
+        fromAddress.setIsDefault(false);
+        toAddress.setIsDefault(true);
+        addressRepository.save(fromAddress);
+        addressRepository.save(toAddress);
+        log.info("address updated successfully");
+        List<Address> addressList = getDeliveryAddressList(phoneNumber);
+        return ResponseEntity.ok().body(addressList);
+
     }
 
 

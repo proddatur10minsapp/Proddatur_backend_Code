@@ -17,4 +17,13 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
     public ResponseEntity inputFieldRequried(InputFieldRequried inputFieldRequriedException){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(inputFieldRequriedException);
     }
+    @ExceptionHandler(CannotModifyException.class)
+    public ResponseEntity cannotModifyException(CannotModifyException cannotModifyException){
+        return  ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(cannotModifyException);
+    }
+    @ExceptionHandler(CommonExcepton.class)
+    public ResponseEntity commonExcepiton(CommonExcepton commonExcepton){
+        return ResponseEntity.status(HttpStatus.OK).body(commonExcepton);
+
+    }
 }
