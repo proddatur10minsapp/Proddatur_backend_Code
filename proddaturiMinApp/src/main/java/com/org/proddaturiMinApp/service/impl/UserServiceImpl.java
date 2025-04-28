@@ -135,7 +135,6 @@ public class UserServiceImpl implements UserService {
         Map<String, String> addressList = user.getAddress();
         if(Objects.nonNull(addressList)){
             // User Address Should be non-null
-
             if(userInputDTO.getAddress().getIsDefault()){
                 addressList.values().stream()
                         .map(addressId -> addressRepository.findById(addressId))
