@@ -23,7 +23,8 @@ public interface ProductService {
     public Optional<Product> getProductsById(String id) ;
 
 
-
     public String getCategoryNameById(String categoryId) ;
+
+    public List<Product> getProductsByName(String productName,String categoryName);
 
 }

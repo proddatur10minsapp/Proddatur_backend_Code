@@ -38,4 +38,14 @@ public class ProductController {
         return productService.allProducts();
     }
 
+    @GetMapping("/getProductsByName/{productname}/{categoryname}")
+    public List<Product> getProductsViaName(@PathVariable("productname") String productName, @PathVariable("categoryname") String categoryName) {
+        return productService.getProductsByName(productName, categoryName);
+    }
+
+    @GetMapping("/getProductsByName/{productname}")
+    public List<Product> getProductsViaName(@PathVariable("productname") String productName) {
+        return productService.getProductsByName(productName,null);
+    }
+
 }
