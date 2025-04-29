@@ -5,7 +5,7 @@ import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.ProductService;
-import com.org.proddaturiMinApp.utils.commonConstants;
+import com.org.proddaturiMinApp.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,20 +27,19 @@ public class ProductServiceImpl implements ProductService {
         List<Product> filteredProducts = new ArrayList<>();
         List<Product> allProducts = productRepository.findAll();
 
-        if (i >= allProducts.size()) return filteredProducts;
+        if (i >= allProducts.size())
+            return filteredProducts;
 
-        int loopLimit = Math.min(i + commonConstants.range, allProducts.size());
-
-        while (i < loopLimit) {
+        while (i < allProducts.size()) {
             Product product = allProducts.get(i);
-            if (product.getCategory() == null) {
+            if (Objects.isNull(product.getCategory()) ) {
                 i++;
                 continue; // skip if category is null
             }
 
             String productCategoryName = getCategoryNameById(product.getCategory());
             if (productCategoryName.equalsIgnoreCase(categoryName)) {
-                filteredProducts.add(product);
+                if (filteredProducts.size() <= CommonConstants.paginationRange) filteredProducts.add(product);
             }
             i++;
         }
@@ -71,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
                 .filter(category -> Objects.equals(category.getId(), categoryId))
                 .map(Category::getName)
                 .findFirst()
-                .orElse(commonConstants.categoryNotFound + " with id " + categoryId);
+                .orElse(CommonConstants.categoryNotFound + " with id " + categoryId);
     }
 
 }

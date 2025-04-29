@@ -3,7 +3,6 @@ package com.org.proddaturiMinApp.service.impl;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.service.CategoryService;
-import com.org.proddaturiMinApp.utils.commonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
