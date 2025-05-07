@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
                 continue; // skip if category is null
             }
 
-            String productCategoryName = getCategoryNameById(product.getCategory());
+            String productCategoryName = getCategoryNameById(product.getCategory().toString());
             if (productCategoryName.equalsIgnoreCase(categoryName)) {
                filteredProducts.add(product);
             }
@@ -114,7 +114,5 @@ public class ProductServiceImpl implements ProductService {
         return filteredProducts;
 
     }
-
-
 
 }
