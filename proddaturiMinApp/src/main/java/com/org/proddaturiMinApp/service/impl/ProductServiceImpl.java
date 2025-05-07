@@ -63,4 +63,58 @@ public class ProductServiceImpl implements ProductService {
                 .orElse(CommonConstants.categoryNotFound + " with id " + categoryId);
     }
 
+    public List<Product> getProductsByName(String productName,String categoryName) {
+        List<Product> allProducts = productRepository.findAll();
+        List<Product> filterProducts = new ArrayList<>();
+        if(Objects.isNull(categoryName))
+        {
+            for(Product product:allProducts)
+            {
+                String productNameLower = productName.toLowerCase();
+                String productNameInList = product.getName().toLowerCase();
+
+                if (productNameLower.contains(productNameInList) || productNameInList.contains(productNameLower)) {
+
+                    filterProducts.add(product);
+                }
+            }
+        }
+        else{
+            List<Product> categoryBasedProducts= getAllProductsByCategory(categoryName);
+            for(Product product:categoryBasedProducts)
+            {
+                if(productName.equalsIgnoreCase(product.getName()))
+                {
+                    filterProducts.add(product);
+                }
+            }
+
+        }
+        return filterProducts;
+    }
+
+    public List<Product> getAllProductsByCategory(String categoryName) {
+        List<Product> filteredProducts = new ArrayList<>();
+        List<Product> allProducts = productRepository.findAll();
+        int i=0;
+        while (i < allProducts.size()) {
+            Product product = allProducts.get(i);
+            if (Objects.isNull(product.getCategory()) ) {
+                i++;
+                continue; // skip if category is null
+            }
+
+            String productCategoryName = getCategoryNameById(product.getCategory());
+            if (productCategoryName.equalsIgnoreCase(categoryName)) {
+               filteredProducts.add(product);
+            }
+            i++;
+        }
+
+        return filteredProducts;
+
+    }
+
+
+
 }
