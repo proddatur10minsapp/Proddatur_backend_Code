@@ -1,5 +1,7 @@
 package com.org.proddaturiMinApp.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ public class Product {
     @Id
     private String id;
     private String name;
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
     private String image;
     private int price;

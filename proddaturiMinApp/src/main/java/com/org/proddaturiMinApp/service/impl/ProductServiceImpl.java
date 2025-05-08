@@ -6,6 +6,7 @@ import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.ProductService;
 import com.org.proddaturiMinApp.utils.CommonConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
@@ -31,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     public List<Product> getFilteredProducts(String categoryName, int i) {
-        Pageable pageable= PageRequest.of(i%10,10);
+        Pageable pageable= PageRequest.of(i,10);
         String id =categoryRepository.findByName(categoryName).get().getId();
        return  productRepository.findByCategory(new ObjectId(categoryName),pageable);
 
@@ -47,7 +49,9 @@ public class ProductServiceImpl implements ProductService {
 
 
     public List<Product> allProducts() {
-        return productRepository.findAll();
+        List<Product> allProducts = productRepository.findAll();
+        log.info("all products are : {}",allProducts);
+        return allProducts;
     }
 
     public Optional<Product> getProductsById(String id) {
