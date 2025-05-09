@@ -23,11 +23,6 @@ public class ProductController {
         return productService.getProducts(category);
     }
 
-    @GetMapping("/getProducts/{category}/{nextvalue}")
-    public List<Product> getProductsViaNextValue(@PathVariable("category") String category, @PathVariable("nextvalue") int nextValue) {
-        return productService.getProductsViaNextValue(category, nextValue);
-    }
-
     @GetMapping("/{id}")
     public Optional<Product> getProductById(@PathVariable String id) {
         return productService.getProductsById(id);
@@ -38,14 +33,10 @@ public class ProductController {
         return productService.allProducts();
     }
 
-    @GetMapping("/getProductsByName/{productname}/{categoryname}")
-    public List<Product> getProductsViaName(@PathVariable("productname") String productName, @PathVariable("categoryname") String categoryName) {
-        return productService.getProductsByName(productName, categoryName);
-    }
 
     @GetMapping("/getProductsByName/{productname}")
     public List<Product> getProductsViaName(@PathVariable("productname") String productName) {
-        return productService.getProductsByName(productName,null);
+        return productService.getProductsByName(productName);
     }
 
 }

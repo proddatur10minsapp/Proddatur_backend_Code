@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -32,25 +34,27 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Product> getFilteredProducts(String categoryName, int i) {
-        Pageable pageable= PageRequest.of(i,10);
-        String id =categoryRepository.findByName(categoryName).get().getId();
-       return  productRepository.findByCategory(new ObjectId(categoryName),pageable);
+    public List<Product> getFilteredProducts(String categoryName) {
+//        Pageable pageable = PageRequest.of(i, 10);
+//        String id = categoryRepository.findByName(categoryName).get().getId();
+//        return productRepository.findByCategory(new ObjectId(categoryName), pageable);
+        return getAllProductsByCategory(categoryName);
 
     }
 
     public List<Product> getProducts(String categoryName) {
-        return getFilteredProducts(categoryName, 0);
+
+        return getFilteredProducts(categoryName);
     }
 
-    public List<Product> getProductsViaNextValue(String categoryName, int i) {
-        return getFilteredProducts(categoryName, i);
-    }
+//    public List<Product> getProductsViaNextValue(String categoryName, int i) {
+//        return getFilteredProducts(categoryName, i);
+//    }
 
 
     public List<Product> allProducts() {
         List<Product> allProducts = productRepository.findAll();
-        log.info("all products are : {}",allProducts);
+        log.info("all products are : {}", allProducts);
         return allProducts;
     }
 
@@ -67,50 +71,56 @@ public class ProductServiceImpl implements ProductService {
                 .orElse(CommonConstants.categoryNotFound + " with id " + categoryId);
     }
 
-    public List<Product> getProductsByName(String productName,String categoryName) {
+
+    public List<Product> getProductsByName(String productName) {
         List<Product> allProducts = productRepository.findAll();
-        List<Product> filterProducts = new ArrayList<>();
-        if(Objects.isNull(categoryName))
-        {
-            for(Product product:allProducts)
-            {
-                String productNameLower = productName.toLowerCase();
-                String productNameInList = product.getName().toLowerCase();
+        List<Product> filteredProducts = new ArrayList<>();
 
-                if (productNameLower.contains(productNameInList) || productNameInList.contains(productNameLower)) {
+        // Split input into words and lowercase
+        String[] keywords = productName.toLowerCase().split("\\s+");
 
-                    filterProducts.add(product);
+        for (Product product : allProducts) {
+            String productNameLower = product.getName().toLowerCase();
+
+            boolean matchFound = false;
+            for (String word : keywords) {
+                // Strip common suffixes (basic stemming)
+                if (word.endsWith("s") && word.length() > 3) {
+                    word = word.substring(0, word.length() - 1);
+                }
+
+                String regex = ".*" + Pattern.quote(word) + ".*";
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(productNameLower);
+
+                if (matcher.matches()) {
+                    matchFound = true;
+                    break; // one match is enough
                 }
             }
-        }
-        else{
-            List<Product> categoryBasedProducts= getAllProductsByCategory(categoryName);
-            for(Product product:categoryBasedProducts)
-            {
-                if(productName.equalsIgnoreCase(product.getName()))
-                {
-                    filterProducts.add(product);
-                }
-            }
 
+            if (matchFound) {
+                filteredProducts.add(product);
+            }
         }
-        return filterProducts;
+
+        return filteredProducts;
     }
 
     public List<Product> getAllProductsByCategory(String categoryName) {
         List<Product> filteredProducts = new ArrayList<>();
         List<Product> allProducts = productRepository.findAll();
-        int i=0;
+        int i = 0;
         while (i < allProducts.size()) {
             Product product = allProducts.get(i);
-            if (Objects.isNull(product.getCategory()) ) {
+            if (Objects.isNull(product.getCategory())) {
                 i++;
                 continue; // skip if category is null
             }
 
             String productCategoryName = getCategoryNameById(product.getCategory().toString());
             if (productCategoryName.equalsIgnoreCase(categoryName)) {
-               filteredProducts.add(product);
+                filteredProducts.add(product);
             }
             i++;
         }

@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface ProductService {
   
 
-    public List<Product> getFilteredProducts(String categoryName, int i);
+    public List<Product> getFilteredProducts(String categoryName);
 
     public List<Product> getProducts(String categoryName);
 
-    public List<Product> getProductsViaNextValue(String categoryName, int i) ;
+    //public List<Product> getProductsViaNextValue(String categoryName, int i) ;
 
 
     public List<Product> allProducts() ;
@@ -25,6 +25,6 @@ public interface ProductService {
 
     public String getCategoryNameById(String categoryId) ;
 
-    public List<Product> getProductsByName(String productName,String categoryName);
+    public List<Product> getProductsByName(String productName);
 
 }

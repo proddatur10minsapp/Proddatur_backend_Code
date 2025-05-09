@@ -18,11 +18,11 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     public Optional<Category> getCategoryById(@RequestBody String id) {
-        return categoryRepository.findById(id);
+        return categoryRepository.findById(id.trim());
     }
 
     public Optional<Category> getCategoryByName(@RequestBody String categoryName) {
-        return categoryRepository.findByName(categoryName);
+        return categoryRepository.findByName(categoryName.trim());
     }
 
 
