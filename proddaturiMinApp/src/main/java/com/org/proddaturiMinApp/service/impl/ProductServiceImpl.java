@@ -35,9 +35,7 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     public List<Product> getFilteredProducts(String categoryName) {
-//        Pageable pageable = PageRequest.of(i, 10);
-//        String id = categoryRepository.findByName(categoryName).get().getId();
-//        return productRepository.findByCategory(new ObjectId(categoryName), pageable);
+
         return getAllProductsByCategory(categoryName);
 
     }
@@ -47,9 +45,6 @@ public class ProductServiceImpl implements ProductService {
         return getFilteredProducts(categoryName);
     }
 
-//    public List<Product> getProductsViaNextValue(String categoryName, int i) {
-//        return getFilteredProducts(categoryName, i);
-//    }
 
 
     public List<Product> allProducts() {
@@ -76,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
         List<Product> allProducts = productRepository.findAll();
         List<Product> filteredProducts = new ArrayList<>();
 
-        // Split input into words and lowercase
+    
         String[] keywords = productName.toLowerCase().split("\\s+");
 
         for (Product product : allProducts) {
@@ -84,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
             boolean matchFound = false;
             for (String word : keywords) {
-                // Strip common suffixes (basic stemming)
+               
                 if (word.endsWith("s") && word.length() > 3) {
                     word = word.substring(0, word.length() - 1);
                 }
@@ -95,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
 
                 if (matcher.matches()) {
                     matchFound = true;
-                    break; // one match is enough
+                    break; 
                 }
             }
 
@@ -115,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
             Product product = allProducts.get(i);
             if (Objects.isNull(product.getCategory())) {
                 i++;
-                continue; // skip if category is null
+                continue; 
             }
 
             String productCategoryName = getCategoryNameById(product.getCategory().toString());
