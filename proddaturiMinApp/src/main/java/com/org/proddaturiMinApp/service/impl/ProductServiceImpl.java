@@ -1,26 +1,24 @@
 package com.org.proddaturiMinApp.service.impl;
 
-import com.org.proddaturiMinApp.model.Category;
+import com.org.proddaturiMinApp.exception.CommonExcepton;
+import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.ProductService;
 import com.org.proddaturiMinApp.utils.CommonConstants;
+import com.org.proddaturiMinApp.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,91 +30,78 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Product> getFilteredProducts(String categoryName, int i) {
-        Pageable pageable= PageRequest.of(i,10);
-        String id =categoryRepository.findByName(categoryName).get().getId();
-       return  productRepository.findByCategory(new ObjectId(categoryName),pageable);
+    @Autowired
+    private CommonUtils commonUtils;
 
+    public List<Product> getFilteredProducts(String categoryName, int i) throws CommonExcepton {
+        Pageable pageable = PageRequest.of(i, CommonConstants.paginationRange);
+        String id =null;
+        try {
+            id = String.valueOf(categoryRepository.findByName(categoryName).get().get_id());
+        }
+        catch (Exception e){
+            log.info("failed to get the id for categoryName {}",categoryName);
+            throw new DetailsNotFound("Details Not found for the catagory Name "+categoryName);
+        }
+
+        ObjectId objectId=commonUtils.convertToObjectId(id);
+        if(Objects.isNull(objectId)){
+            throw new CommonExcepton("Cannot able to convert to object Id");
+        }
+        return productRepository.findByCategory(objectId, pageable);
     }
 
-    public List<Product> getProducts(String categoryName) {
+    public List<Product> getProducts(String categoryName) throws CommonExcepton {
         return getFilteredProducts(categoryName, 0);
     }
 
-    public List<Product> getProductsViaNextValue(String categoryName, int i) {
+    public List<Product> getProductsViaNextValue(String categoryName, int i) throws CommonExcepton {
         return getFilteredProducts(categoryName, i);
     }
 
 
     public List<Product> allProducts() {
         List<Product> allProducts = productRepository.findAll();
-        log.info("all products are : {}",allProducts);
+        log.info("all products are : {}", allProducts);
         return allProducts;
     }
 
-    public Optional<Product> getProductsById(String id) {
-        return productRepository.findById(id);
-    }
-
-
-    public String getCategoryNameById(String categoryId) {
-        return categoryRepository.findAll().stream()
-                .filter(category -> Objects.equals(category.getId(), categoryId))
-                .map(Category::getName)
-                .findFirst()
-                .orElse(CommonConstants.categoryNotFound + " with id " + categoryId);
-    }
-
-    public List<Product> getProductsByName(String productName,String categoryName) {
-        List<Product> allProducts = productRepository.findAll();
-        List<Product> filterProducts = new ArrayList<>();
-        if(Objects.isNull(categoryName))
-        {
-            for(Product product:allProducts)
-            {
-                String productNameLower = productName.toLowerCase();
-                String productNameInList = product.getName().toLowerCase();
-
-                if (productNameLower.contains(productNameInList) || productNameInList.contains(productNameLower)) {
-
-                    filterProducts.add(product);
-                }
-            }
+    public Product getProductsById(String id) throws CommonExcepton {
+        if(Objects.isNull(id)){
+            log.error("productId can't be null");
         }
-        else{
-            List<Product> categoryBasedProducts= getAllProductsByCategory(categoryName);
-            for(Product product:categoryBasedProducts)
-            {
-                if(productName.equalsIgnoreCase(product.getName()))
-                {
-                    filterProducts.add(product);
-                }
-            }
-
+        Optional<Product> product = productRepository.findById(id);
+        if(product.isEmpty()){
+            log.info("No product found for the product id {}",id);
+            throw new DetailsNotFound("No product found for the product id "+id);
         }
-        return filterProducts;
+        return product.get();
     }
 
-    public List<Product> getAllProductsByCategory(String categoryName) {
-        List<Product> filteredProducts = new ArrayList<>();
-        List<Product> allProducts = productRepository.findAll();
-        int i=0;
-        while (i < allProducts.size()) {
-            Product product = allProducts.get(i);
-            if (Objects.isNull(product.getCategory()) ) {
-                i++;
-                continue; // skip if category is null
-            }
 
-            String productCategoryName = getCategoryNameById(product.getCategory().toString());
-            if (productCategoryName.equalsIgnoreCase(categoryName)) {
-               filteredProducts.add(product);
-            }
-            i++;
+    public Set<Product> getFilteredProductByName(String productName) throws InputFieldRequried {
+
+        if(Objects.isNull(productName)){
+            log.info("product name is null");
+            throw new InputFieldRequried("product name is requried");
         }
+        List<String> listOfSerach = Arrays.stream(productName.split(" ")).toList();
+        Pageable pageable = PageRequest.of(0, CommonConstants.paginationRange);
+        Set<Product> resultSet = listOfSerach.stream()
+                .flatMap(term -> productRepository.findByNameContainingIgnoreCase(term, pageable).stream())
+                .collect(Collectors.toSet());
 
-        return filteredProducts;
+        return resultSet;
 
     }
+
+    //    public String getCategoryNameById(String categoryId) {
+//        return categoryRepository.findAll().stream()
+//                .filter(category -> Objects.equals(category.get_id(), categoryId))
+//                .map(Category::getName)
+//                .findFirst()
+//                .orElse(CommonConstants.categoryNotFound + " with id " + categoryId);
+//    }
+
 
 }

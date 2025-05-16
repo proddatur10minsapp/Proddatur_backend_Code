@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.service;
 
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Category;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -8,10 +9,9 @@ import java.util.Optional;
 
 public interface CategoryService {
 
-    public Optional<Category> getCategoryById(@RequestBody String id);
+    public Category getCategoryById( String id) throws InputFieldRequried;
 
-    public Optional<Category> getCategoryByName(@RequestBody String categoryName);
+    public Category getCategoryByName( String categoryName) throws InputFieldRequried;
 
-
-    public List<Category> allCategories();
+    public List<Category> getAllCategories();
 }

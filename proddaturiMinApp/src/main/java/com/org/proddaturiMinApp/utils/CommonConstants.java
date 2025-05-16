@@ -1,7 +1,7 @@
 package com.org.proddaturiMinApp.utils;
 
 public class CommonConstants {
-    public static int paginationRange = 20;
+    public static int paginationRange = 30;
     public static String dataSaved = "data Saved Successfully";
     public static String userUpdatedData = "User Updated Successfully";
     public static String userInvalidData = "Failed To Update";

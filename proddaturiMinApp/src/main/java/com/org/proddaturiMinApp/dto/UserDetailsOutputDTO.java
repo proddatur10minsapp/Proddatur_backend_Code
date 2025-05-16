@@ -9,5 +9,4 @@ import java.util.List;
 public class UserDetailsOutputDTO {
     User user;
     List<Address> addressList;
-
 }

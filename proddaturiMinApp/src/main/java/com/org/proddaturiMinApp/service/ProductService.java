@@ -1,30 +1,32 @@
 package com.org.proddaturiMinApp.service;
 
+import com.org.proddaturiMinApp.exception.CommonExcepton;
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 
 @Service
 public interface ProductService {
   
 
-    public List<Product> getFilteredProducts(String categoryName, int i);
+    public List<Product> getFilteredProducts(String categoryName, int i) throws CommonExcepton;
 
-    public List<Product> getProducts(String categoryName);
+    public List<Product> getProducts(String categoryName) throws CommonExcepton;
 
-    public List<Product> getProductsViaNextValue(String categoryName, int i) ;
+    public List<Product> getProductsViaNextValue(String categoryName, int i) throws CommonExcepton;
 
 
     public List<Product> allProducts() ;
 
-    public Optional<Product> getProductsById(String id) ;
+    public Product getProductsById(String id) throws CommonExcepton;
 
 
-    public String getCategoryNameById(String categoryId) ;
+    public Set<Product> getFilteredProductByName(String productName) throws InputFieldRequried;
 
-    public List<Product> getProductsByName(String productName,String categoryName);
+    //    public String getCategoryNameById(String categoryId) ;
 
 }

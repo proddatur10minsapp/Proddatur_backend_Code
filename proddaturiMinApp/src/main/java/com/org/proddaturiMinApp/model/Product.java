@@ -16,7 +16,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Product {
     @Id
-    private String id;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private ObjectId id;
     private String name;
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
@@ -24,6 +25,5 @@ public class Product {
     private int price;
     private int discountPrice;
     private String quantity;
-
 
 }
