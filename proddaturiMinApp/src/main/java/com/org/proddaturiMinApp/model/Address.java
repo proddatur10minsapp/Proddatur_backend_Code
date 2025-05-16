@@ -7,18 +7,20 @@ import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
-
+@Document
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "users")
-public class User {
+public class Address {
     @Id
-    private String id;
+    String id;
+    String houseNo;
     @NonNull
-    private String phoneNumber;
-    private String userName;
-    private Map<String, String> address;
-
+    String type;
+    String areaOrStreet;
+    String landmark;
+    Integer pincode;
+    Boolean isDefault;
+    String phoneNumber;
 }
+

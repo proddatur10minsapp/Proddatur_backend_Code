@@ -1,6 +1,7 @@
 package com.org.proddaturiMinApp.utils;
 
-public class commonConstants {
+public class CommonConstants {
+    public static int paginationRange = 30;
     public static String dataSaved = "data Saved Successfully";
     public static String userUpdatedData = "User Updated Successfully";
     public static String userInvalidData = "Failed To Update";
@@ -11,7 +12,7 @@ public class commonConstants {
     public static String failedMessage = "Login Failed";
     public static int otpExpireTime = 5;  // OTP valid for 5 minutes
     public static String productsNotFound = "products not found";
-    public static int range = 20;
+
     public static String productNotFound = "Product not found";
     public static String failedToSave = "Failed To Save";
     public static String dataUpdatedData = "data Updated Successfully";

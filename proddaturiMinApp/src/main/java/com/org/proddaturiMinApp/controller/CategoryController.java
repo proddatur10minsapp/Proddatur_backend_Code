@@ -1,7 +1,10 @@
 package com.org.proddaturiMinApp.controller;
 
+
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.service.CategoryService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,26 +13,27 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("users/products/category")
+@RequestMapping("/users/category")
 
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/getCategoryById/{categoryId}")
-    public Optional<Category> getCategoryById(@PathVariable String categoryId) {
+    @GetMapping("/id/{categoryId}")
+    public Category getCategoryById(@PathVariable String categoryId) throws InputFieldRequried {
         return categoryService.getCategoryById(categoryId);
     }
 
-    @GetMapping("/getCategoryByName/{categoryName}")
-    public Optional<Category> getCategoryByName(@PathVariable String categoryName) {
+    @GetMapping("/name/{categoryName}")
+    public Category getCategoryByName(@PathVariable String categoryName) throws InputFieldRequried {
         return categoryService.getCategoryByName(categoryName);
     }
 
-    @GetMapping("/allCategory")
-    public List<Category> getAllCategories() {
-        return categoryService.allCategories();
+    @GetMapping("/all")
+    public List<Category> getAllCategorys(){
+        return categoryService.getAllCategories();
     }
+
 
 
 }
