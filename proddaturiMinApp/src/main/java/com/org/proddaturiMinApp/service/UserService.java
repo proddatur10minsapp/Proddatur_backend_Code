@@ -1,16 +1,29 @@
 package com.org.proddaturiMinApp.service;
 
-import com.org.proddaturiMinApp.model.User;
+import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
+import com.org.proddaturiMinApp.dto.UserInputDTO;
+import com.org.proddaturiMinApp.exception.CannotModifyException;
+import com.org.proddaturiMinApp.exception.CommonExcepton;
+import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.InputFieldRequried;
+import com.org.proddaturiMinApp.model.Address;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
+import java.util.List;
 
 public interface UserService {
-    public String generateOtp(String mobileNumber);
 
-    public boolean validateOtp(String mobileNumber, String userOtp);
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound;
 
-    public Boolean validateOtpAndSaveUser(String username, String mobileNumber, String otp);
+    ResponseEntity<String> updateUser(UserInputDTO userInputDTO);
 
-    public Boolean updateUserData(String mobileNumber, User user);
-    public String updateUserAddress(String mobileNumber, Map<String, Object> address);
+    List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried;
+
+    ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried;
+
+    ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress);
+
+    ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException;
+
+    ResponseEntity<List<Address>> setAsDefaultUddress(String phoneNumber, String fromAddressId, String toAddressId) throws CommonExcepton, InputFieldRequried;
 }

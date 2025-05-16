@@ -2,6 +2,7 @@ package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.ProductRepository;
+import com.org.proddaturiMinApp.service.ProductService;
 import com.org.proddaturiMinApp.service.impl.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +16,11 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private ProductServiceImpl productService;
+    private ProductService productService;
 
     @GetMapping("/getProducts/{category}")
     public List<Product> getProducts(@PathVariable("category") String category) {
         return productService.getProducts(category);
-    }
-
-    @GetMapping("/getProducts/{category}/{nextvalue}")
-    public List<Product> getProductsViaNextValue(@PathVariable("category") String category, @PathVariable("nextvalue") int nextValue) {
-        return productService.getProductsViaNextValue(category, nextValue);
     }
 
     @GetMapping("/{id}")
@@ -35,6 +31,12 @@ public class ProductController {
     @GetMapping("/allProducts")
     public List<Product> getAllProducts() {
         return productService.allProducts();
+    }
+
+
+    @GetMapping("/getProductsByName/{productname}")
+    public List<Product> getProductsViaName(@PathVariable("productname") String productName) {
+        return productService.getProductsByName(productName);
     }
 
 }

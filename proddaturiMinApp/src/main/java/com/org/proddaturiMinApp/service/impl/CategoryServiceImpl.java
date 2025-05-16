@@ -3,7 +3,6 @@ package com.org.proddaturiMinApp.service.impl;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.service.CategoryService;
-import com.org.proddaturiMinApp.utils.commonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,33 +16,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public String addCategory(@RequestBody Category category) {
-        Category response = categoryRepository.save(category);
-        if (response.getId() == null) return commonConstants.failedToSave + category.getName();
-        return commonConstants.dataSaved;
-    }
 
     public Optional<Category> getCategoryById(@RequestBody String id) {
-        return categoryRepository.findById(id);
+        return categoryRepository.findById(id.trim());
     }
 
     public Optional<Category> getCategoryByName(@RequestBody String categoryName) {
-        return categoryRepository.findByName(categoryName);
+        return categoryRepository.findByName(categoryName.trim());
     }
 
-    public String updateCategory(@RequestBody Category givenCategory, String categoryId) {
-        Category filteredCategory = getCategoryById(categoryId).get();
-        if (givenCategory.getName() != null)
-        {filteredCategory.setName(givenCategory.getName());}
-        if (givenCategory.getImage() != null) filteredCategory.setImage(givenCategory.getImage());
-        categoryRepository.save(filteredCategory);
-        return commonConstants.dataUpdatedData;
-    }
 
-    public String deleteCategoryById(@RequestBody String id) {
-        categoryRepository.deleteById(id);
-        return commonConstants.dataDeleted;
-    }
     public List<Category> allCategories() {
         return categoryRepository.findAll();
     }
