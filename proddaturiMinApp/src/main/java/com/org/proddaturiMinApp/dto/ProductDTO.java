@@ -29,5 +29,6 @@ public class ProductDTO {
         this.image= product.getImage();
         this.price=product.getPrice();
         this.quantity=product.getQuantity();
+        this.discountPrice=product.getDiscountPrice();
     }
 }
