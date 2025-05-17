@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.controller;
 
+import com.org.proddaturiMinApp.dto.ProductDTO;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Product;
@@ -32,7 +33,7 @@ public class ProductController {
     }
 
     @GetMapping("/id/{id}")
-    public Product getProductById(@PathVariable String id) throws CommonExcepton {
+    public ProductDTO getProductById(@PathVariable String id) throws CommonExcepton {
         return productService.getProductsById(id);
     }
 
