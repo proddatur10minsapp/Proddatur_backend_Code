@@ -28,6 +28,8 @@ public class ProductDTO {
         this.categoryName=categoryName;
         this.image= product.getImage();
         this.price=product.getPrice();
+        this.discountPrice=product.getDiscountPrice();
         this.quantity=product.getQuantity();
+
     }
 }
