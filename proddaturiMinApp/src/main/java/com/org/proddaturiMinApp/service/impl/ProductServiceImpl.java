@@ -1,8 +1,10 @@
 package com.org.proddaturiMinApp.service.impl;
 
+import com.org.proddaturiMinApp.dto.ProductDTO;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
+import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
@@ -66,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
         return allProducts;
     }
 
-    public Product getProductsById(String id) throws CommonExcepton {
+    public ProductDTO getProductsById(String id) throws CommonExcepton {
         if(Objects.isNull(id)){
             log.error("productId can't be null");
         }
@@ -75,7 +77,8 @@ public class ProductServiceImpl implements ProductService {
             log.info("No product found for the product id {}",id);
             throw new DetailsNotFound("No product found for the product id "+id);
         }
-        return product.get();
+
+        return getProductDTO(product.get());
     }
 
 
@@ -93,6 +96,15 @@ public class ProductServiceImpl implements ProductService {
 
         return resultSet;
 
+    }
+
+    private ProductDTO getProductDTO(Product product){
+
+        Optional<Category> catagory = categoryRepository.findById(String.valueOf(product.getCategory()));
+        if(catagory.isEmpty()){
+            throw new DetailsNotFound("Catagory may be deleted for the product , catagoryid {}" +product.getCategory());
+        }
+        return new ProductDTO(product,catagory.get().getName());
     }
 
     //    public String getCategoryNameById(String categoryId) {
