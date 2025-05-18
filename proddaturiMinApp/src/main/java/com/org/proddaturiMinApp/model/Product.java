@@ -21,12 +21,16 @@ public class Product {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String name;
-    @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId category;
     private String image;
     private List gallery;
     private int price;
     private int discountPrice;
     private String quantity;
+    private String description;
+    private String keyFeatures;
+    private String specifications;
+    private String stock;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private ObjectId category;
 
 }
