@@ -85,7 +85,7 @@ public class CartServiceImpl implements CartService {
 
     }
 
-    public ResponseEntity<Cart> incrementTheProdut(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
         if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getQuantity())) {
             throw new InputFieldRequried("productId or CagatoryName or Quantity should be not null");
         }

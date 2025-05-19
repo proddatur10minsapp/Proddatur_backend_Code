@@ -15,19 +15,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/cart")
 public class CartController {
-
-//    POST /cart – Create a new cart
-//
-//    GET /cart/{id} – Get cart details -- 2
-//
-//    POST /cart/{id}/items – Add item to cart --1
-//
-//    PUT /cart/{id}/items/{itemId} – Update item quantity -3
-//
-//    DELETE /cart/{id}/items/{itemId} – Remove item -4
-//
-//    POST /cart/{id}/checkout – Initiate checkout --not needed now
-
     @Autowired
     private CartService cartService;
 
@@ -48,12 +35,12 @@ public class CartController {
         return cartService.getAllItemsInCart(phoneNumber);
     }
 
-    @PostMapping("/{phoneNumber}")
+    @PostMapping("/update/{phoneNumber}")
     public ResponseEntity<Cart> incremtentProduct(@PathVariable(value="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
         if(Objects.isNull(cartInputDTO)){
             throw new InputFieldRequried("method body cannot be null");
         }
-        return cartService.incrementTheProdut(phoneNumber,cartInputDTO);
+        return cartService.updatePoductInCart(phoneNumber,cartInputDTO);
     }
 
 
