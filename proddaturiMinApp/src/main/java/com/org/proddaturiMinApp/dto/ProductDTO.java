@@ -17,13 +17,13 @@ public class ProductDTO {
     private String name;
     private String image;
     private List gallery;
-    private int price;
-    private int discountPrice;
+    private Double price;
+    private Double discountPrice;
     private String quantity;
     private String description;
     private String keyFeatures;
     private String specifications;
-    private String stock;
+    private Integer stock;
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
     private String categoryName;
