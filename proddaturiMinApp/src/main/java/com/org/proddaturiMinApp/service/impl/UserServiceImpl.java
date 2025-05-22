@@ -43,14 +43,12 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound(new StringBuilder().append("User Not found for: ").append(phoneNumber).toString());
         }
         User user= optionalUser.get();
-        log.info("Used details found for the mobile Number :{}",user.toString());
         UserDetailsOutputDTO userDetailsOutputDTO=new UserDetailsOutputDTO();
         userDetailsOutputDTO.setUser(user);
         userDetailsOutputDTO.setAddressList(getDeliveryAddressList(user.getPhoneNumber()));
         return ResponseEntity.ok().body(userDetailsOutputDTO);
     }
 
-    // this method can be used to update userName , add new address into to the user
     @Override
     public ResponseEntity<String> updateUser(UserInputDTO userInputDTO) {
 
@@ -61,11 +59,9 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
-        log.info("fetched user details are {} ",optionalUser.get());
         if(Objects.nonNull(userInputDTO.getUserName())) {
             user.setUserName(userInputDTO.getUserName());
         }
-        // to add the user Address
         if(Objects.nonNull(userInputDTO.getAddress())) {
 
             Address address = userInputDTO.getAddress();
@@ -73,26 +69,21 @@ public class UserServiceImpl implements UserService {
             address.setId(addressID);
             if(Objects.nonNull(user.getAddress())){
                 user.getAddress().put(address.getType(),addressID);
-                log.info("Address is successfully added to the db for id  {} ",userInputDTO.getPhoneNumber());
             }
             else{
                 Map<String , String> addressMap = new HashMap<>();
                 addressMap.put(address.getType(),addressID);
                 address.setIsDefault(true);
                 user.setAddress(addressMap);
-                log.info("Address map is null created map and  successfully added to the db for id  {} ",userInputDTO.getPhoneNumber());
             }
             address.setPhoneNumber(userInputDTO.getPhoneNumber());
 
             addressRepository.save(address);
-            log.info("Added new address {}",address);
         }
         userRepository.save(user);
-        log.info("user details saved successfully {} ",user);
         return  ResponseEntity.ok(user.toString());
     }
 
-    // To fetch all the address list to display
     @Override
     public List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried {
         if(Objects.isNull(phoneNumber)){
@@ -105,7 +96,6 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
-        log.info("fetched user details are {} ",user);
         Map<String, String> allAddress = user.getAddress();
         if(Objects.isNull(allAddress)){
             throw new DetailsNotFound("No address Found for the User  "+user.getPhoneNumber());
@@ -129,13 +119,11 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
-        log.info("fetched user details are {} ",optionalUser.get());
         Address address = userInputDTO.getAddress();
         address.setId(UUID.randomUUID().toString());
         address.setPhoneNumber(userInputDTO.getPhoneNumber());
         Map<String, String> addressList = user.getAddress();
         if(Objects.nonNull(addressList)){
-            // User Address Should be non-null
             if(userInputDTO.getAddress().getIsDefault()){
                 addressList.values().stream()
                         .map(addressId -> addressRepository.findById(addressId))
@@ -145,23 +133,17 @@ public class UserServiceImpl implements UserService {
                         .forEach(addressRepository::save);
             }
             addressList.put(address.getType(),address.getId());
-            log.info("New user address is added to the User address collection ");
         }
         else{
             addressList=new HashMap<>();
             user.setAddress(addressList);
-            //If user Address is null
             if(!address.getIsDefault()){
                address.setIsDefault(true);
             }
         }
-        // save the address
         addressRepository.save(address);
-        // add the address type and the id with with user
         addressList.put(address.getType(),address.getId());
-        log.info("There is no address for the user , new address is added for the user {}",user.getPhoneNumber());
         userRepository.save(user);
-        log.info("{} , is updated successfully",user);
         UserDetailsOutputDTO userDetailsOutputDTO=new UserDetailsOutputDTO();
         userDetailsOutputDTO.setUser(user);
         userDetailsOutputDTO.setAddressList(getDeliveryAddressList(user.getPhoneNumber()));
@@ -177,13 +159,12 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
-        log.info("fetched user details are {} ",optionalUser.get());
         if(!user.getAddress().containsValue(addressId)){
             log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
             throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
         }
 
-       Address address=addressRepository.findById(addressId).get();
+        Address address = addressRepository.findById(addressId).get();
         address.setHouseNo(updatedAddress.getHouseNo());
         address.setAreaOrStreet(updatedAddress.getAreaOrStreet());
         address.setLandmark(updatedAddress.getLandmark());
@@ -194,11 +175,9 @@ public class UserServiceImpl implements UserService {
             address.setType(updatedAddress.getType());
             user.getAddress().put(address.getType(),address.getId());
             userRepository.save(user);
-            log.info("Address type is changed and updated to the db {} :{} /n address-{}",phoneNumber,user,address);
         }
 
         addressRepository.save(address);
-        log.info("address updated successfully for {} : {}",address.getPhoneNumber(),address);
         return ResponseEntity.ok().body(address);
     }
 
@@ -211,7 +190,6 @@ public class UserServiceImpl implements UserService {
             throw new DetailsNotFound("User Not found");
         }
         User user=optionalUser.get();
-        log.info("fetched user details are {} ",optionalUser.get());
         if(!user.getAddress().containsValue(addressId)){
             log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
             throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
@@ -222,11 +200,8 @@ public class UserServiceImpl implements UserService {
             throw new CannotModifyException("Default Address can't be modified please change the default to another first");
         }
         user.getAddress().remove(address.getType());
-        log.info("Address has been removed from the uesr collection {}:{}",phoneNumber,address);
         userRepository.save(user);
-        log.info("user details updated successfully {} : {}",phoneNumber,user);
         addressRepository.deleteById(addressId);
-        log.info("Address details removed successfully {}: {}",phoneNumber,address);
         return  ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
 
@@ -266,7 +241,6 @@ public class UserServiceImpl implements UserService {
         toAddress.setIsDefault(true);
         addressRepository.save(fromAddress);
         addressRepository.save(toAddress);
-        log.info("address updated successfully");
         List<Address> addressList = getDeliveryAddressList(phoneNumber);
         return ResponseEntity.ok().body(addressList);
 

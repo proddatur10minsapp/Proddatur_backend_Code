@@ -13,9 +13,13 @@ import java.util.Map;
 public interface CartService {
 
 
-    public ResponseEntity<Map<String, Object>> addItem(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton;
+    public ResponseEntity<Map<String, Object>> addProductToCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton;
 
     public ResponseEntity<Cart> getAllItemsInCart(String phoneNumber);
 
-    ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton;
+    public ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton;
+
+    public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber);
+
 }
+

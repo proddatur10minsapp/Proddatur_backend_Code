@@ -32,5 +32,6 @@ public class Product {
     private Integer stock;
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
+    private Integer productId;
 
 }
