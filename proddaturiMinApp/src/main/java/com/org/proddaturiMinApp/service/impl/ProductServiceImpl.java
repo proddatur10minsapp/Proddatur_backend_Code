@@ -1,7 +1,5 @@
 package com.org.proddaturiMinApp.service.impl;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.org.proddaturiMinApp.dto.ProductDTO;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
@@ -79,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
             throw new InputFieldRequried("product name is requried");
         }
         List<String> listOfSerach = Arrays.stream(productName.split(" ")).toList();
-        Pageable pageable = PageRequest.of(0, CommonConstants.paginationRange);
+        Pageable pageable = PageRequest.of(0, CommonConstants.PAGINATION_RANGE);
 
         Set<HashMap<String, Object>> resultSet = listOfSerach.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(this::getSearchProductRetrunMap)).collect(Collectors.toSet());
         return resultSet;
@@ -87,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int i) throws CommonExcepton {
-        Pageable pageable = PageRequest.of(i, CommonConstants.paginationRange);
+        Pageable pageable = PageRequest.of(i, CommonConstants.PAGINATION_RANGE);
         String id =null;
         try {
             id = String.valueOf(categoryRepository.findByName(categoryName).get().get_id());

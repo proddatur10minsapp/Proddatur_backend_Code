@@ -10,6 +10,7 @@ import com.org.proddaturiMinApp.model.Product;
 import com.org.proddaturiMinApp.repository.CartRespsitory;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.CartService;
+import com.org.proddaturiMinApp.utils.CommonConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,9 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductRepository productRepository;
 
+
     @Override
-    public ResponseEntity<Map<String, Object>> addItem(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Map<String, Object>> addProductToCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
         if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getCatagoryName()) || Objects.isNull(cartInputDTO.getQuantity())) {
             throw new InputFieldRequried("productId or CagatoryName or Quantity should be not null");
         }
@@ -49,7 +51,7 @@ public class CartServiceImpl implements CartService {
 
         ProductInCartDTO productInCart = new ProductInCartDTO();
         productInCart.setId(cartInputDTO.getProductId());
-        productInCart.setCatagoryName(cartInputDTO.getCatagoryName());
+        productInCart.setCategoryName(cartInputDTO.getCatagoryName());
         productInCart.setQuantity(cartInputDTO.getQuantity());
         updateProductInCartDTO(productInCart);
         productInCart.setUpdatedAt(LocalDateTime.now());
@@ -57,7 +59,7 @@ public class CartServiceImpl implements CartService {
             cart.setProductsMap(new HashMap<>());
         }
         Map<String, ProductInCartDTO> productsMap = cart.getProductsMap();
-        productsMap.put(productInCart.getId().toString(), productInCart);
+        productsMap.put(String.valueOf(productInCart.getId()), productInCart);
 
         updateCart(cart, productsMap);
         cartRespsitory.save(cart);
@@ -73,14 +75,17 @@ public class CartServiceImpl implements CartService {
         if (optionalCart.isEmpty()) {
             throw new DetailsNotFound("Cart is Empty");
         }
-        Cart cart = optionalCart.get();
-        // To Make the values as default
+         Cart cart = optionalCart.get();
 
         if (Objects.isNull(cart.getProductsMap()) || cart.getProductsMap().isEmpty()) {
             throw new DetailsNotFound("Cart is Empty");
         }
         Map<String, ProductInCartDTO> productsMap = cart.getProductsMap();
-        updateCart(cart,productsMap);
+        productsMap.keySet().forEach(key -> {
+            ProductInCartDTO product = productsMap.get(key);
+            updateProductInCartDTO(product);
+        });
+        updateCart(cart, productsMap);
         return ResponseEntity.status(HttpStatus.FOUND).body(cart);
 
     }
@@ -91,25 +96,39 @@ public class CartServiceImpl implements CartService {
         }
         Cart cart = cartRespsitory.findById(phoneNumber).get();
 
-        if (Objects.isNull(cart.getProductsMap()) || cart.getProductsMap().isEmpty() || !cart.getProductsMap().containsKey(cartInputDTO.getProductId().toString())) {
+        if (Objects.isNull(cart.getProductsMap()) || cart.getProductsMap().isEmpty() || !cart.getProductsMap().containsKey(String.valueOf(cartInputDTO.getProductId()))) {
             throw new CommonExcepton("Product is dose not Exist in Cart , please add product first");
         }
 
         Map<String, ProductInCartDTO> productsMap = cart.getProductsMap();
         if (cartInputDTO.getQuantity() <= 0) {
-            productsMap.remove(cartInputDTO.getProductId().toString());
+            productsMap.remove(String.valueOf(cartInputDTO.getProductId()));
             log.info("Product removed from cart successfully");
+
         } else {
-            ProductInCartDTO product = productsMap.get(cartInputDTO.getProductId().toString());
-            product.setQuantity(cartInputDTO.getQuantity());
-            product = updateProductInCartDTO(product);
+            ProductInCartDTO productInCartDTO = productsMap.get(String.valueOf(cartInputDTO.getProductId()));
+            productInCartDTO.setQuantity(cartInputDTO.getQuantity());
+            productInCartDTO = updateProductInCartDTO(productInCartDTO);
             log.info("Product incremented to cart");
         }
 
         updateCart(cart, productsMap);
         cart.setUpdatedAt(LocalDateTime.now());
         cartRespsitory.save(cart);
+        log.info("Product add to cart :{}", cart);
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber) {
+
+        int totalProductsInCart= cartRespsitory.findById(phoneNumber)
+                .map(cart -> cart.getTotalItemsInCart())
+                .orElseGet(() -> 0);
+
+        Map<String, Object> reponse = new HashMap<>();
+        reponse.put("totalProductsInCart", totalProductsInCart);
+        return ResponseEntity.ok(reponse);
     }
 
 
@@ -121,15 +140,18 @@ public class CartServiceImpl implements CartService {
         Product product = productDetails.get();
         productInCart.setId(product.getId());
         productInCart.setProductName(product.getName());
-        productInCart.setCatagory(product.getCategory());
-        productInCart.setIsProductAvailabe(product.getStock() > 0 ? Boolean.TRUE : Boolean.FALSE);
+        productInCart.setImage(product.getImage());
+        productInCart.setCategory(product.getCategory());
+        productInCart.setIsProductAvailabe(product.getStock() > 0 ? CommonConstants.TRUE : CommonConstants.FALSE);
         productInCart.setPrice(product.getPrice());
         productInCart.setTotalCurrentPrice(productInCart.getPrice() * productInCart.getQuantity());
         productInCart.setDiscountedPrice(product.getDiscountPrice());
         productInCart.setTotalDiscountedAmount(productInCart.getTotalCurrentPrice() - (productInCart.getDiscountedPrice() * productInCart.getQuantity()));
         productInCart.setTotalPrice(productInCart.getTotalCurrentPrice() - productInCart.getTotalDiscountedAmount());
+
         return productInCart;
     }
+
     private static void updateCart(Cart cart, Map<String, ProductInCartDTO> productsMap) {
         cart.setTotalItemsInCart(0);
         cart.setCurrentTotalPrice(0.0);

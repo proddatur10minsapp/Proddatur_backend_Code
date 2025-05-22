@@ -13,9 +13,10 @@ public class ProductInCartDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String productName;
+    private String image;
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId catagory;
-    private String catagoryName;
+    private ObjectId category;
+    private String categoryName;
     private Integer quantity=0;
     private Boolean isProductAvailabe;
     private Double price=0.0;

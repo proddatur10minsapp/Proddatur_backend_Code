@@ -20,11 +20,11 @@ public class CartController {
 
     // this api can be used to add to cart and incremnt the product in the all pages except Cart
     @PostMapping("/add/{phoneNumber}")
-    public ResponseEntity<Map<String, Object>> add(@PathVariable(value ="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Map<String, Object>> addProductToCart(@PathVariable(value ="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
         if(Objects.isNull(cartInputDTO)){
             throw new InputFieldRequried("method body cannot be null");
         }
-        return cartService.addItem(phoneNumber,cartInputDTO);
+        return cartService.addProductToCart(phoneNumber,cartInputDTO);
     }
 
     @GetMapping("/{phoneNumber}")
@@ -43,7 +43,12 @@ public class CartController {
         return cartService.updatePoductInCart(phoneNumber,cartInputDTO);
     }
 
-
-
+    @GetMapping("/{phoneNumber}/count")
+    public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(@PathVariable(value="phoneNumber")String phoneNumber) throws InputFieldRequried {
+        if(Objects.isNull(phoneNumber)){
+            throw new InputFieldRequried("Phone Number is requried");
+        }
+        return cartService.getTotalNumberOfProductsInCart(phoneNumber);
+    }
 
 }
