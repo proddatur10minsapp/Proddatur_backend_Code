@@ -15,14 +15,16 @@ import java.util.Set;
 public interface ProductService {
   
 
-    public  Set<HashMap<String, Object>> getProducts(String categoryName) throws CommonExcepton;
+    public  Set<HashMap<String, Object>> getProducts(String categoryName,String phoneNumber) throws CommonExcepton;
 
-    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i) throws CommonExcepton;
+    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i,String phoneNumber) throws CommonExcepton;
 
-    public ProductDTO getProductsById(String id) throws CommonExcepton;
+    public ProductDTO getProductsById(String id,String phoneNumber) throws CommonExcepton;
 
 
-    public Set<HashMap<String, Object>> getFilteredProductByName(String productName) throws InputFieldRequried;
+    public Set<HashMap<String, Object>> getFilteredProductByName(String productName,String phoneNumber) throws InputFieldRequried;
+
+    public  Set<HashMap<String, Object>> getProductsForTrends(String categoryName,String phoneNumber,Integer paginationRange) throws CommonExcepton;
 
 
 }
