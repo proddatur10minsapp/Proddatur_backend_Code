@@ -5,5 +5,4 @@ public class CommonConstants {
     public static Boolean TRUE=Boolean.TRUE;
     public static Boolean FALSE=Boolean.FALSE;
 
-
 }

@@ -1,22 +1,27 @@
 package com.org.proddaturiMinApp.service.impl;
 
 import com.org.proddaturiMinApp.dto.ProductDTO;
+import com.org.proddaturiMinApp.dto.ProductInCartDTO;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.DetailsNotFound;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
+import com.org.proddaturiMinApp.model.Cart;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.model.Product;
+import com.org.proddaturiMinApp.repository.CartRespsitory;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.ProductService;
 import com.org.proddaturiMinApp.utils.CommonConstants;
 import com.org.proddaturiMinApp.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
@@ -35,6 +40,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CommonUtils commonUtils;
 
+    @Autowired
+    private CartRespsitory cartRespsitory;
+
     private String ID= "id";
     private String NAME="name";
     private String IMAGE="image";
@@ -48,16 +56,16 @@ public class ProductServiceImpl implements ProductService {
     private String STOCK="stock";
     private String  CATEGORY="category";
 
-    public  Set<HashMap<String, Object>> getProducts(String categoryName) throws CommonExcepton {
-        return getFilteredProducts(categoryName, 0);
+    public  Set<HashMap<String, Object>> getProducts(String categoryName,String phoneNumber) throws CommonExcepton {
+        return getFilteredProducts(categoryName, 0,CommonConstants.PAGINATION_RANGE,phoneNumber);
     }
 
-    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i) throws CommonExcepton {
-        return getFilteredProducts(categoryName, i);
+    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i,String phoneNumber) throws CommonExcepton {
+        return getFilteredProducts(categoryName, i, CommonConstants.PAGINATION_RANGE,phoneNumber);
     }
 
 
-    public ProductDTO getProductsById(String id) throws CommonExcepton {
+    public ProductDTO getProductsById(String id,String phoneNumber) throws CommonExcepton {
         if(Objects.isNull(id)){
             log.error("productId can't be null");
         }
@@ -66,24 +74,39 @@ public class ProductServiceImpl implements ProductService {
             log.info("No product found for the product id {}",id);
             throw new DetailsNotFound("No product found for the product id "+id);
         }
-        return getProductDTO(product.get());
+        Map<String, ProductInCartDTO> cartProductsMap=null;
+        if(Objects.nonNull(phoneNumber)){
+            cartProductsMap=cartRespsitory.findById(phoneNumber).map(Cart::getProductsMap).orElse(null);
+        }
+        return getProductDTO(product.get(),cartProductsMap);
     }
 
 
-    public Set<HashMap<String, Object>> getFilteredProductByName(String productName) throws InputFieldRequried {
+    public Set<HashMap<String, Object>> getFilteredProductByName(String productName,String phoneNumber) throws InputFieldRequried {
         if(Objects.isNull(productName)){
             log.info("product name is null");
             throw new InputFieldRequried("product name is requried");
         }
         List<String> listOfSerach = Arrays.stream(productName.split(" ")).toList();
         Pageable pageable = PageRequest.of(0, CommonConstants.PAGINATION_RANGE);
+        Map<String, ProductInCartDTO> finalCartProductsMap;
+        if(Objects.nonNull(phoneNumber)){
+            finalCartProductsMap=cartRespsitory.findById(phoneNumber).map(Cart::getProductsMap).orElse(null);
+        } else {
+            finalCartProductsMap = null;
+        }
 
-        Set<HashMap<String, Object>> resultSet = listOfSerach.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(this::getSearchProductRetrunMap)).collect(Collectors.toSet());
+        Set<HashMap<String, Object>> resultSet = listOfSerach.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))).collect(Collectors.toSet());
         return resultSet;
 
     }
 
-    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int i) throws CommonExcepton {
+    @Override
+    public Set<HashMap<String, Object>> getProductsForTrends(String categoryName, String phoneNumber, Integer paginationRange) throws CommonExcepton {
+        return getFilteredProducts(categoryName, 0,paginationRange,phoneNumber);
+    }
+
+    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int i,int paginationRange,String phoneNumber) throws CommonExcepton {
         Pageable pageable = PageRequest.of(i, CommonConstants.PAGINATION_RANGE);
         String id =null;
         try {
@@ -98,21 +121,29 @@ public class ProductServiceImpl implements ProductService {
         if(Objects.isNull(objectId)){
             throw new CommonExcepton("Cannot able to convert to object Id");
         }
-        Set<HashMap<String, Object>> retunVal = productRepository.findByCategory(objectId, pageable).stream().map(this::getSearchProductRetrunMap).collect(Collectors.toSet());
+        // for fetching the products
+        Map<String, ProductInCartDTO> cartMap;
+        if(Objects.nonNull(phoneNumber)){
+            cartMap=cartRespsitory.findById(phoneNumber).map(Cart::getProductsMap).orElse(null);
+        } else {
+            cartMap = null;
+        }
+        Set<HashMap<String, Object>> retunVal = productRepository.findByCategory(objectId, pageable).stream().map(product->getSearchProductRetrunMap(product,cartMap)).collect(Collectors.toSet());
         return retunVal;
     }
 
-    private ProductDTO getProductDTO(Product product){
+    private ProductDTO getProductDTO(Product product,Map<String, ProductInCartDTO> cartProductsMap){
 
         Optional<Category> catagory = categoryRepository.findById(String.valueOf(product.getCategory()));
         if(catagory.isEmpty()){
             throw new DetailsNotFound("Catagory may be deleted for the product , catagoryid {}" +product.getCategory());
         }
-        return new ProductDTO(product,catagory.get().getName());
+        return new ProductDTO(product,catagory.get().getName(),cartProductsMap);
     }
-    private HashMap<String, Object> getSearchProductRetrunMap(Product product){
+    private HashMap<String, Object> getSearchProductRetrunMap(Product product ,Map<String, ProductInCartDTO> cartProductsMap){
+        String productID=product.getId().toString();
         HashMap<String, Object> returnProductMap=new HashMap<>();
-        returnProductMap.put(ID,product.getId().toString());
+        returnProductMap.put(ID,productID);
         returnProductMap.put(NAME,product.getName());
         returnProductMap.put(IMAGE,product.getImage());
         returnProductMap.put(PRICE,product.getPrice());
@@ -120,6 +151,19 @@ public class ProductServiceImpl implements ProductService {
         returnProductMap.put(QUANTITY,product.getQuantity());
         returnProductMap.put(STOCK,product.getStock());
         returnProductMap.put(CATEGORY,product.getCategory().toString());
+
+        returnProductMap.put("isPresentInWishList",CommonConstants.FALSE);
+        returnProductMap.put("isPresentInCart",CommonConstants.FALSE);
+
+
+        // now need to check the cart is null or not if not null if the products present in the cart need to update here
+        if(Objects.nonNull(cartProductsMap)){
+            if(cartProductsMap.containsKey(productID)){
+                // update the values
+                returnProductMap.put("isPresentInCart",CommonConstants.TRUE);
+                returnProductMap.put("quantityInCart",cartProductsMap.get(productID).getQuantity());
+            }
+        }
         return returnProductMap;
     }
 
