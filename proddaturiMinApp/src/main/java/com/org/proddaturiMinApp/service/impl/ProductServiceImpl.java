@@ -106,8 +106,8 @@ public class ProductServiceImpl implements ProductService {
         return getFilteredProducts(categoryName, 0,paginationRange,phoneNumber);
     }
 
-    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int i,int paginationRange,String phoneNumber) throws CommonExcepton {
-        Pageable pageable = PageRequest.of(i, CommonConstants.PAGINATION_RANGE);
+    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int pageNumber,int paginationRange,String phoneNumber) throws CommonExcepton {
+        Pageable pageable = PageRequest.of(pageNumber, paginationRange);
         String id =null;
         try {
             id = String.valueOf(categoryRepository.findByName(categoryName).get().get_id());

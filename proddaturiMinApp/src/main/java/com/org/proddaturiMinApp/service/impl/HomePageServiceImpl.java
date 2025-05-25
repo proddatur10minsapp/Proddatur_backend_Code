@@ -25,7 +25,6 @@ public class HomePageServiceImpl implements HomePageService {
     @Override
     public ResponseEntity<HashMap<Integer, Object>> getTrendProducts(String phoneNumber) throws CommonExcepton {
         List<Trends> trendCategory = trendsRepository.findAll();
-        Pageable pageable= PageRequest.of(0,paginationRange);
         HashMap<Integer, Object> returnMap = new HashMap<>();
         for (Trends trend: trendCategory) {
             returnMap.put(trend.getPriority() ,getTrendsReturnObject( trend,productService.getProductsForTrends(trend.getCategoryName(),phoneNumber,paginationRange)));
