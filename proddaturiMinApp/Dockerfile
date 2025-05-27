@@ -9,3 +9,4 @@ FROM openjdk:17.0.1-jdk-slim
 COPY --from=build /target/proddaturiMinApp-3.4.3.jar app.jar
 EXPOSE 8080
 ENTRYPOINT["java","-jar","app.jar"]
+
