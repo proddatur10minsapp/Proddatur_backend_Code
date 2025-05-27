@@ -3,6 +3,8 @@ FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /proddaturiMinApp
 COPY . .
 RUN ls
+RUN cd proddaturiMinApp
+RUN ls
 RUN mvn clean install -DskipTests
 
 # Runtime Stage
