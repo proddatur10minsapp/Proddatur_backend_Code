@@ -1,7 +1,7 @@
 # Build Stage
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /proddaturiMinApp
-COPY . .
+COPY proddaturiMinApp/ .
 RUN mvn clean install -DskipTests
 
 # Runtime Stage
