@@ -148,7 +148,8 @@ public class CartServiceImpl implements CartService {
         productInCart.setDiscountedPrice(product.getDiscountPrice());
         productInCart.setTotalDiscountedAmount(productInCart.getTotalCurrentPrice() - (productInCart.getDiscountedPrice() * productInCart.getQuantity()));
         productInCart.setTotalPrice(productInCart.getTotalCurrentPrice() - productInCart.getTotalDiscountedAmount());
-
+        double percentage=(productInCart.getTotalDiscountedAmount()*100)/productInCart.getTotalCurrentPrice();
+        productInCart.setDiscountPercentage((int)Math.ceil(percentage));
         return productInCart;
     }
 

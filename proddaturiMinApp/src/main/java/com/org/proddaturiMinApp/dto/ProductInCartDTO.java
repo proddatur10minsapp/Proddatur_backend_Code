@@ -17,14 +17,15 @@ public class ProductInCartDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
     private String categoryName;
-    private Integer quantity=0;
+    private Integer quantity=0;//2
     private Boolean isProductAvailabe;
-    private Double price=0.0;
-    private Double totalCurrentPrice=0.0;
-    private Double discountedPrice=0.0;
-    private Double totalDiscountedAmount=0.0;
-    private Double totalPrice=0.0;
+    private Double price=0.0;//20
+    private Double totalCurrentPrice=0.0;//40
+    private Double discountedPrice=0.0;//18
+    private Double totalDiscountedAmount=0.0;//4
+    private Double totalPrice=0.0;//36
     private LocalDateTime updatedAt;
+    private Integer discountPercentage=0;//2%
 
 
 }
