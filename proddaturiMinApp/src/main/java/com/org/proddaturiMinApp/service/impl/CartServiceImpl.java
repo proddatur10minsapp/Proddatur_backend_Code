@@ -123,7 +123,7 @@ public class CartServiceImpl implements CartService {
     public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber) {
 
         int totalProductsInCart= cartRespsitory.findById(phoneNumber)
-                .map(cart -> cart.getTotalItemsInCart())
+                .map(cart -> cart.getProductsMap().size())
                 .orElseGet(() -> 0);
 
         Map<String, Object> reponse = new HashMap<>();
