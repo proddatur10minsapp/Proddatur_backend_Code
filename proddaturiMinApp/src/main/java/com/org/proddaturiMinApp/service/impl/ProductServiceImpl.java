@@ -87,7 +87,10 @@ public class ProductServiceImpl implements ProductService {
             log.info("product name is null");
             throw new InputFieldRequried("product name is requried");
         }
-        List<String> listOfSerach = Arrays.stream(productName.split(" ")).toList();
+        List<String> listOfSearch=new ArrayList<>();
+        List<String> productNames = productRepository.findAll().stream().map(Product::getName).collect(Collectors.toList());
+        productNames.forEach(name->{ if(productName.toLowerCase().trim().contains(name.toLowerCase())){
+            listOfSearch.add(name);}});
         Pageable pageable = PageRequest.of(0, CommonConstants.PAGINATION_RANGE);
         Map<String, ProductInCartDTO> finalCartProductsMap;
         if(Objects.nonNull(phoneNumber)){
@@ -96,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
             finalCartProductsMap = null;
         }
 
-        Set<HashMap<String, Object>> resultSet = listOfSerach.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))).collect(Collectors.toSet());
+        Set<HashMap<String, Object>> resultSet = listOfSearch.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))).collect(Collectors.toSet());
         return resultSet;
 
     }
