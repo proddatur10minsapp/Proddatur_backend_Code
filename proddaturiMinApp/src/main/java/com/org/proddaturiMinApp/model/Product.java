@@ -10,6 +10,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "products")
 @Data
 @AllArgsConstructor
@@ -19,11 +21,17 @@ public class Product {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     private String name;
+    private String image;
+    private List gallery;
+    private Double price;
+    private Double discountPrice;
+    private String quantity;
+    private String description;
+    private String keyFeatures;
+    private String specifications;
+    private Integer stock;
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
-    private String image;
-    private int price;
-    private int discountPrice;
-    private String quantity;
+    private Integer productId;
 
 }

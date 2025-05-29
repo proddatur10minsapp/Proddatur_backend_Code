@@ -13,7 +13,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/users/category")
+@RequestMapping("/category")
 
 public class CategoryController {
     @Autowired

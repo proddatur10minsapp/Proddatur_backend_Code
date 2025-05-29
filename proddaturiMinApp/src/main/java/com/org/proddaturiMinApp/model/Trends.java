@@ -2,23 +2,22 @@ package com.org.proddaturiMinApp.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "categories")
+@Document(collection = "trend_categories")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Category {
+public class Trends {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId _id;
-    private String name;
-    private String image;
-    private Integer categoryId;
-    private String groupName;
+    private ObjectId id;
+    @Field("category")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private ObjectId categoryId;
+    private String categoryName;
+    private String backgroundImage;
+    private Integer priority;
 }

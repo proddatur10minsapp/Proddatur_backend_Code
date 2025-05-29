@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.controller;
 
+import com.org.proddaturiMinApp.dto.ProductDTO;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Product;
@@ -9,12 +10,13 @@ import com.org.proddaturiMinApp.service.impl.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/users/products")
+@RequestMapping("/products")
 public class ProductController {
     @Autowired
     private ProductRepository productRepository;
@@ -22,34 +24,31 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/categories-name/{category}")
-    public List<Product> getProducts(@PathVariable("category") String category) throws CommonExcepton {
-        return productService.getProducts(category);
+    public  Set<HashMap<String, Object>> getProducts(@PathVariable("category") String category,@RequestParam(value = "phone-number",required = false) String phoneNumber) throws CommonExcepton {
+        return productService.getProducts(category,phoneNumber);
     }
+
+    //now on going
 
     @GetMapping("/categories-name/{category}/{nextvalue}")
-    public List<Product> getNextProducts(@PathVariable("category") String category, @PathVariable("nextvalue") int nextValue) throws CommonExcepton {
-        return productService.getProductsViaNextValue(category, nextValue);
+    public  Set<HashMap<String, Object>> getNextProducts(@PathVariable("category") String category, @PathVariable("nextvalue") int nextValue,@RequestParam(value = "phone-number",required = false) String phoneNumber) throws CommonExcepton {
+        return productService.getProductsViaNextValue(category, nextValue,phoneNumber);
     }
 
+    // need the old methodogy
     @GetMapping("/id/{id}")
-    public Product getProductById(@PathVariable String id) throws CommonExcepton {
-        return productService.getProductsById(id);
+    public ProductDTO getProductById(@PathVariable String id,@RequestParam(value = "phone-number",required = false) String phoneNumber) throws CommonExcepton {
+        return productService.getProductsById(id,phoneNumber);
     }
 
+
+    // done
     @GetMapping("/search/{productname}")
-    public Set<Product> getProductsViaName(@PathVariable("productname") String productName) throws InputFieldRequried {
-        return productService.getFilteredProductByName(productName);
+    public Set<HashMap<String, Object>> getProductsViaName(@PathVariable("productname") String productName,@RequestParam(value = "phone-number",required = false) String phoneNumber) throws InputFieldRequried {
+        return productService.getFilteredProductByName(productName,phoneNumber);
     }
 
 
-//    @GetMapping("/allProducts")
-//    public List<Product> getAllProducts() {
-//        return productService.allProducts();
-//    }
 
-//    @GetMapping("/getProductsByName/{productname}/{categoryname}")
-//    public List<Product> getProductsViaName(@PathVariable("productname") String productName, @PathVariable("categoryname") String categoryName) {
-//        return productService.getProductsByName(productName, categoryName);
-//    }
 
 }
