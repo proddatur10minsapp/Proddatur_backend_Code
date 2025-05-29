@@ -90,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
         }
         Pageable pageable = PageRequest.of(0, CommonConstants.PAGINATION_RANGE);
         List<String> listOfSearch=new ArrayList<>();
-        List<Product> productNames =productRepository.findAll(pageable).stream().collect(Collectors.toList());
+        List<Product> productNames =productRepository.findByNameContainingIgnoreCase(productName,pageable);
         productNames.forEach(name->{ if(productName.toLowerCase().trim().contains(name.getName().toLowerCase())){
             listOfSearch.add(name.getName());}});
         Map<String, ProductInCartDTO> finalCartProductsMap;
@@ -100,8 +100,10 @@ public class ProductServiceImpl implements ProductService {
             finalCartProductsMap = null;
         }
 
-        Set<HashMap<String, Object>> resultSet = listOfSearch.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))).collect(Collectors.toSet());
+        Set<HashMap<String, Object>> resultSet = productNames.stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))
+                .collect(Collectors.toSet());
         return resultSet;
+
     }
 
 
