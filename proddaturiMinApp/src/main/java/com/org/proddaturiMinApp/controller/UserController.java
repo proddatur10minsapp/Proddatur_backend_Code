@@ -27,7 +27,7 @@ public class UserController {
 
 
 
-    @PostMapping("/initialUpdate")
+    @PostMapping("/initial-update")
     public ResponseEntity<String> updateUser(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
             log.info("Phone Number is mandatory");
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     // It will return the list of all the address
-    @GetMapping("/Address/{phoneNumber}")
+    @GetMapping("/address/{phoneNumber}")
     public ResponseEntity<List<Address>> getDeliveryAddress(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFound {
         return ResponseEntity.ok(userService.getDeliveryAddressList(phoneNumber));
     }
@@ -52,7 +52,7 @@ public class UserController {
     // add an new address to the user and check it is primary or not , if it is primary address add it
     // to user
 
-    @PostMapping("/Address/addNew")
+    @PostMapping("/address/add-new")
     public ResponseEntity<UserDetailsOutputDTO> addNewAddress(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
             log.info("Phone Number is mandatory");
@@ -62,7 +62,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/Address/edit/{phoneNumber}/{addressId}")
+    @PostMapping("/address/edit/{phoneNumber}/{addressId}")
     public ResponseEntity<Address> editAddress(@PathVariable String phoneNumber,@PathVariable String addressId,@RequestBody Address updatedAddress) throws InputFieldRequried {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
@@ -71,7 +71,7 @@ public class UserController {
         return userService.editAddress(phoneNumber,addressId,updatedAddress);
     }
 
-    @DeleteMapping("/Address/delete/{phoneNumber}/{addressId}")
+    @DeleteMapping("/address/delete/{phoneNumber}/{addressId}")
     public ResponseEntity deleteAddress(@PathVariable String phoneNumber, @PathVariable String addressId) throws InputFieldRequried, CannotModifyException {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
@@ -83,7 +83,7 @@ public class UserController {
         }
         return userService.deteteAddress(phoneNumber,addressId);
     }
-    @PostMapping("/Address/setAsDefault/{phoneNumber}/{fromAddressId}/{toAddressId}")
+    @PostMapping("/address/set-as-default/{phoneNumber}/{fromAddressId}/{toAddressId}")
     public ResponseEntity<List<Address>> setAsDefaultUddress(@PathVariable String phoneNumber, @PathVariable String fromAddressId , @PathVariable String toAddressId) throws InputFieldRequried, CommonExcepton {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
