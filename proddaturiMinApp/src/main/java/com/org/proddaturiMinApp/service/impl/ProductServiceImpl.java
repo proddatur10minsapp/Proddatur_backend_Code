@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -82,16 +83,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    public Set<HashMap<String, Object>> getFilteredProductByName(String productName,String phoneNumber) throws InputFieldRequried {
+    public Set<HashMap<String, Object>> getFilteredProductByName(String productName, String phoneNumber) throws InputFieldRequried {
         if(Objects.isNull(productName)){
             log.info("product name is null");
             throw new InputFieldRequried("product name is requried");
         }
-        List<String> listOfSearch=new ArrayList<>();
-        List<String> productNames = productRepository.findAll().stream().map(Product::getName).collect(Collectors.toList());
-        productNames.forEach(name->{ if(productName.toLowerCase().trim().contains(name.toLowerCase())){
-            listOfSearch.add(name);}});
         Pageable pageable = PageRequest.of(0, CommonConstants.PAGINATION_RANGE);
+        List<String> listOfSearch=new ArrayList<>();
+        List<Product> productNames =productRepository.findAll(pageable).stream().collect(Collectors.toList());
+        productNames.forEach(name->{ if(productName.toLowerCase().trim().contains(name.getName().toLowerCase())){
+            listOfSearch.add(name.getName());}});
         Map<String, ProductInCartDTO> finalCartProductsMap;
         if(Objects.nonNull(phoneNumber)){
             finalCartProductsMap=cartRespsitory.findById(phoneNumber).map(Cart::getProductsMap).orElse(null);
@@ -101,8 +102,9 @@ public class ProductServiceImpl implements ProductService {
 
         Set<HashMap<String, Object>> resultSet = listOfSearch.stream().flatMap(searchterm -> productRepository.findByNameContainingIgnoreCase(searchterm, pageable).stream().map(product -> getSearchProductRetrunMap(product, finalCartProductsMap))).collect(Collectors.toSet());
         return resultSet;
-
     }
+
+
 
     @Override
     public Set<HashMap<String, Object>> getProductsForTrends(String categoryName, String phoneNumber, Integer paginationRange) throws CommonExcepton {
