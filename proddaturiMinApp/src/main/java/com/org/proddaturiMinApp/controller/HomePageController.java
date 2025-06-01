@@ -1,19 +1,22 @@
 package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.exception.CommonExcepton;
+import com.org.proddaturiMinApp.model.Banner;
+import com.org.proddaturiMinApp.repository.HomeRepository;
 import com.org.proddaturiMinApp.service.HomePageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/home")
 public class HomePageController {
+
+    @Autowired
+    HomeRepository homeRepository;
 
     @Autowired
     HomePageService homePageService;
@@ -22,4 +25,14 @@ public class HomePageController {
         return homePageService.getTrendProducts(phoneNumber);
     }
 
+    @GetMapping("/banners")
+    public List<Banner> getAllBanners()
+    {
+       List<Banner> allBanners= homeRepository.findAll();
+       return allBanners;
+    }
+
+
+
 }
+
