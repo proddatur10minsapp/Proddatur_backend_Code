@@ -131,6 +131,18 @@ public class CartServiceImpl implements CartService {
         return ResponseEntity.ok(reponse);
     }
 
+    @Override
+    public boolean emptyCart(String phoneNumber) {
+        Cart cart = cartRespsitory.findById(phoneNumber).get();
+        cart.setProductsMap(null);
+        cart.setTotalItemsInCart(0);
+        cart.setCurrentTotalPrice(0.0);
+        cart.setDiscountedAmount(0.0);
+        cart.setTotalPrice(0.0);
+        cartRespsitory.save(cart);
+        return true;
+    }
+
 
     private ProductInCartDTO updateProductInCartDTO(ProductInCartDTO productInCart) {
         Optional<Product> productDetails = productRepository.findById(String.valueOf(productInCart.getId()));

@@ -23,7 +23,7 @@ import java.util.Objects;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
 
 
