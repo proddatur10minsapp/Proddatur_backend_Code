@@ -101,8 +101,10 @@ public class OrderServiceImpl implements OrderService {
         List<Orders> staleOrders = orderRepository.findByOrderStatus(OrderStatus.INITIATED);
         for (Orders order : staleOrders) {
             if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(15))) {
-
                 Map<String, ProductInCartDTO> productsMap = order.getCart().getProductsMap();
+                if(Objects.isNull(productsMap)||productsMap.isEmpty()){
+                    continue;
+                }
                 for (Map.Entry<String, ProductInCartDTO> entry : productsMap.entrySet()) {
                     String productId = entry.getKey();
                     int quantity = entry.getValue().getQuantity();
