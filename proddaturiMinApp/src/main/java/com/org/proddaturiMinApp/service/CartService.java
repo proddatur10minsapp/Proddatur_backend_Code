@@ -20,6 +20,7 @@ public interface CartService {
     public ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton;
 
     public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber);
+    public boolean emptyCart(String phoneNumber);
 
 }
 
