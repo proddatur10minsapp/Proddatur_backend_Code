@@ -13,14 +13,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Address {
     @Id
-    String id;
-    String houseNo;
+    private String id;
+    private String houseNo;
     @NonNull
-    String type;
-    String areaOrStreet;
-    String landmark;
-    Integer pincode;
-    Boolean isDefault;
-    String phoneNumber;
+    private String type;
+    private String areaOrStreet;
+    private String landmark;
+    private Integer pincode;
+    private Boolean isDefault;
+    private String phoneNumber;
 }
 

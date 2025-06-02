@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
    @Autowired
-    UserRepository userRepository;
+   private UserRepository userRepository;
 
    @Autowired
-    AddressRepository addressRepository;
+   private AddressRepository addressRepository;
 
     // this getUserDetails method is used to fetch the user details based on the user
     @Override

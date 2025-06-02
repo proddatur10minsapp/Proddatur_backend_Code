@@ -22,6 +22,7 @@ public class HomePageController {
     private BannerService bannerService;
     @Autowired
     HomePageService homePageService;
+    private HomePageService homePageService;
     @GetMapping("/trends")
     public ResponseEntity<HashMap<Integer, Object>> getTrendProducts(@RequestParam(value = "phone-number",required = false) String phoneNumber) throws CommonExcepton {
         return homePageService.getTrendProducts(phoneNumber);
