@@ -3,6 +3,7 @@ package com.org.proddaturiMinApp.controller;
 import com.org.proddaturiMinApp.exception.CommonExcepton;
 import com.org.proddaturiMinApp.model.Banner;
 import com.org.proddaturiMinApp.repository.HomeRepository;
+import com.org.proddaturiMinApp.service.BannerService;
 import com.org.proddaturiMinApp.service.HomePageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,8 @@ public class HomePageController {
 
     @Autowired
     HomeRepository homeRepository;
-
+    @Autowired
+    private BannerService bannerService;
     @Autowired
     HomePageService homePageService;
     @GetMapping("/trends")
@@ -26,10 +28,8 @@ public class HomePageController {
     }
 
     @GetMapping("/banners")
-    public List<Banner> getAllBanners()
-    {
-       List<Banner> allBanners= homeRepository.findAll();
-       return allBanners;
+    public ResponseEntity<List<Banner>> getBanners(){
+        return bannerService.getAllBanners();
     }
 
 
