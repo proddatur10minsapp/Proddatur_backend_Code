@@ -122,8 +122,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber) {
 
-        int totalProductsInCart= cartRespsitory.findById(phoneNumber)
-                .map(cart -> cart.getProductsMap().size())
+        int totalProductsInCart = cartRespsitory.findById(phoneNumber)
+                .map(cart -> {
+                    if (Objects.isNull(cart.getProductsMap())) {
+                        return 0;
+                    }
+                    return cart.getProductsMap().size();
+                })
                 .orElseGet(() -> 0);
 
         Map<String, Object> reponse = new HashMap<>();

@@ -1,6 +1,7 @@
 server:
   port : 8080
 
+
 spring :
   application :
     name : test
@@ -8,6 +9,13 @@ spring :
     mongodb:
       uri : ${MONGODB_URI}
       database : ${MONGODB_DATABASE}
+      mvc:
+        pathmatch:
+          matching-strategy: ANT_PATH_MATCHER
+
+springdoc:
+  packages-to-scan: com.org.proddaturiMinApp.controller
+
 
 
 
