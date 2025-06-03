@@ -1,8 +1,7 @@
 package com.org.proddaturiMinApp.service.impl;
 
 import com.org.proddaturiMinApp.dto.ProductDTO;
-import com.org.proddaturiMinApp.emums.ProductSortOptions.SortMethodology;
-import com.org.proddaturiMinApp.emums.ProductSortOptions.SortTechnique;
+import com.org.proddaturiMinApp.emums.ProductSortOptions;
 import com.org.proddaturiMinApp.exception.InvalidSortOptionException;
 import com.org.proddaturiMinApp.exception.MissingSortOptionException;
 import com.org.proddaturiMinApp.model.Product;
@@ -69,7 +68,12 @@ public class ProductFilterServiceImpl implements ProductFilterService {
         }
 
         try {
-            return SortMethodology.valueOf(methodology.toUpperCase()).getFieldName();
+            ProductSortOptions option = ProductSortOptions.valueOf(methodology.toUpperCase());
+            if (!option.isMethodology()) {
+                log.info("Provided sort option is not a methodology: {}", methodology);
+                throw new InvalidSortOptionException("Provided sort option is not a valid methodology: " + methodology);
+            }
+            return option.getFieldName();
         } catch (IllegalArgumentException ex) {
             log.info("Invalid sorting methodology: {}", methodology);
             throw new InvalidSortOptionException("Invalid sorting methodology: " + methodology);
@@ -83,7 +87,12 @@ public class ProductFilterServiceImpl implements ProductFilterService {
         }
 
         try {
-            return SortTechnique.valueOf(technique.toUpperCase()).getDirection();
+            ProductSortOptions option = ProductSortOptions.valueOf(technique.toUpperCase());
+            if (!option.isTechnique()) {
+                log.info("Provided sort option is not a technique: {}", technique);
+                throw new InvalidSortOptionException("Provided sort option is not a valid technique: " + technique);
+            }
+            return option.getDirection();
         } catch (IllegalArgumentException ex) {
             log.info("Invalid sorting technique: {}", technique);
             throw new InvalidSortOptionException("Invalid sorting technique: " + technique);

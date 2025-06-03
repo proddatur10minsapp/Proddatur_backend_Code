@@ -4,31 +4,31 @@ import lombok.Getter;
 import org.springframework.data.domain.Sort;
 
 @Getter
-public class ProductSortOptions {
+public enum ProductSortOptions {
 
-    @Getter
-    public enum SortMethodology {
-        PRICE("discountPrice"),
-        PRODUCTNAME("name");
+    // Sort Methodologies
+    PRICE("discountPrice", null),
+    PRODUCTNAME("name", null),
 
-        private final String fieldName;
+    // Sort Techniques
+    LOWTOHIGH(null, Sort.Direction.ASC),
+    AZ(null, Sort.Direction.ASC),
+    HIGHTOLOW(null, Sort.Direction.DESC),
+    ZA(null, Sort.Direction.DESC);
 
-        SortMethodology(String fieldName) {
-            this.fieldName = fieldName;
-        }
+    private final String fieldName;
+    private final Sort.Direction direction;
+
+    ProductSortOptions(String fieldName, Sort.Direction direction) {
+        this.fieldName = fieldName;
+        this.direction = direction;
     }
 
-    @Getter
-    public enum SortTechnique {
-        LOWTOHIGH(Sort.Direction.ASC),
-        AZ(Sort.Direction.ASC),
-        HIGHTOLOW(Sort.Direction.DESC),
-        ZA(Sort.Direction.DESC);
+    public boolean isMethodology() {
+        return fieldName != null;
+    }
 
-        private final Sort.Direction direction;
-
-        SortTechnique(Sort.Direction direction) {
-            this.direction = direction;
-        }
+    public boolean isTechnique() {
+        return direction != null;
     }
 }
