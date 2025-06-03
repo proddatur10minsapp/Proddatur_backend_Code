@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "file:configuration_1_3.dtd">
+
+
+<module name="Checker">
+    <module name="TreeWalker">
+        <!-- Avoid using wildcard imports -->
+        <module name="AvoidStarImport"/>
+
+        <!-- Ensure no unused imports -->
+        <module name="UnusedImports"/>
+
+        <!-- Check for tab characters instead of spaces -->
+        <module name="FileTabCharacter"/>
+
+        <!-- Naming conventions -->
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="VariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Limit line length to 120 characters -->
+        <module name="LineLength">
+            <property name="max" value="120"/>
+        </module>
+
+        <!-- Enforce Javadoc on public classes and methods -->
+        <module name="JavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingThrowsTags" value="true"/>
+        </module>
+
+    </module>
+</module>
