@@ -57,6 +57,19 @@ public class ProductDTO {
                 quantityInCart = cartProductsMap.get(product.getId().toString()).getQuantity();
             }
         }
-
+    }
+    public ProductDTO(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.image = product.getImage();
+        this.gallery = product.getGallery();
+        this.price = product.getPrice();
+        this.discountPrice = product.getDiscountPrice();
+        this.quantity = product.getQuantity();
+        this.description = product.getDescription();
+        this.keyFeatures = product.getKeyFeatures();
+        this.specifications = product.getSpecifications();
+        this.stock = product.getStock();
+        this.category = product.getCategory();
     }
 }
