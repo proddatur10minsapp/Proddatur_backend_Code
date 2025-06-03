@@ -127,7 +127,7 @@ public class CartServiceImpl implements CartService {
                     if (Objects.isNull(cart.getProductsMap())) {
                         return 0;
                     }
-                    return cart.getProductsMap().size()
+                    return cart.getProductsMap().size();
                 })
                 .orElseGet(() -> 0);
 
