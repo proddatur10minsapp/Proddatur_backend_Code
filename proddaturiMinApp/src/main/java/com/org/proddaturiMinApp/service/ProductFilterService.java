@@ -1,10 +1,12 @@
 package com.org.proddaturiMinApp.service;
 
 import com.org.proddaturiMinApp.dto.ProductDTO;
+import com.org.proddaturiMinApp.exception.CommonExcepton;
 import org.bson.types.ObjectId;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface ProductFilterService {
-    List<ProductDTO> filterProducts(ObjectId categoryId, String filterBasedOn, String filterTechnique, String phoneNumber, int startIndex) throws Exception;
+    ResponseEntity<List<ProductDTO>> filterProducts(ObjectId categoryId, String filterBasedOn, String filterTechnique, String phoneNumber, int startIndex) throws CommonExcepton;
 }
