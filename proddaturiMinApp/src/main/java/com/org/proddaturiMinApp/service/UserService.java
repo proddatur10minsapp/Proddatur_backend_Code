@@ -15,15 +15,15 @@ public interface UserService {
 
     public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound;
 
-    ResponseEntity<String> updateUser(UserInputDTO userInputDTO);
+    ResponseEntity<String> updateUser(UserInputDTO userInputDTO) throws InputFieldRequried;
 
     List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried;
 
     ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried;
 
-    ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress);
+    ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress) throws InputFieldRequried;
 
-    ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException;
+    ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException, InputFieldRequried;
 
     ResponseEntity<List<Address>> setAsDefaultUddress(String phoneNumber, String fromAddressId, String toAddressId) throws CommonExcepton, InputFieldRequried;
 }

@@ -12,6 +12,7 @@ import com.org.proddaturiMinApp.service.UserService;
 import com.org.proddaturiMinApp.model.User;
 import com.org.proddaturiMinApp.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +51,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> updateUser(UserInputDTO userInputDTO) {
-
+    public ResponseEntity<String> updateUser(UserInputDTO userInputDTO) throws InputFieldRequried {
+        if(StringUtils.isNotBlank(userInputDTO.getPhoneNumber())){
+            throw new InputFieldRequried("Phone Number is mandtory");
+        }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(userInputDTO.getPhoneNumber());
 
         if(optionalUser.isEmpty()){
@@ -86,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Address> getDeliveryAddressList(String phoneNumber) throws InputFieldRequried {
-        if(Objects.isNull(phoneNumber)){
+        if(StringUtils.isNotBlank(phoneNumber)){
             log.info("Mobile Number is mandatory");
             throw new InputFieldRequried("Mobile Number is mandatory");
         }
@@ -112,6 +115,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<UserDetailsOutputDTO> addNewAddress(UserInputDTO userInputDTO) throws InputFieldRequried {
+        if(StringUtils.isNotBlank(userInputDTO.getPhoneNumber())){
+            throw new InputFieldRequried("Phone Number is mandtory");
+        }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(userInputDTO.getPhoneNumber());
 
         if(optionalUser.isEmpty()){
@@ -151,7 +157,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress) {
+    public ResponseEntity<Address> editAddress(String phoneNumber, String addressId, Address updatedAddress) throws InputFieldRequried {
+        if(StringUtils.isNotBlank(phoneNumber)){
+            throw new InputFieldRequried("Phone Number is mandtory");
+        }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
 
         if(optionalUser.isEmpty()){
@@ -182,7 +191,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException {
+    public ResponseEntity deteteAddress(String phoneNumber, String addressId) throws CannotModifyException, InputFieldRequried {
+        if(StringUtils.isNotBlank(phoneNumber)){
+            throw new InputFieldRequried("Phone Number is mandtory");
+        }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
 
         if(optionalUser.isEmpty()){
@@ -210,6 +222,9 @@ public class UserServiceImpl implements UserService {
         if(fromAddressId.equals(toAddressId)){
             log.info("Both from and to address to set as default is same ,please check");
             throw new CommonExcepton("Both from and to address to set as default is same ,please check");
+        }
+        if(StringUtils.isNotBlank(phoneNumber)){
+            throw new InputFieldRequried("Phone Number is mandtory");
         }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
 
