@@ -4,6 +4,6 @@ import com.org.proddaturiMinApp.model.Cart;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface CartRespsitory extends MongoRepository<Cart,String> {
+
+public interface CartRepository extends MongoRepository<Cart,String> {
 }

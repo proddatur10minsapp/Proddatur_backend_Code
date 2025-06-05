@@ -4,7 +4,7 @@ import com.org.proddaturiMinApp.dto.ProductInCartDTO;
 import com.org.proddaturiMinApp.emums.OrderStatus;
 import com.org.proddaturiMinApp.emums.PaymentMethod;
 import com.org.proddaturiMinApp.exception.CannotModifyException;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.model.*;
 import com.org.proddaturiMinApp.repository.*;
 import com.org.proddaturiMinApp.service.CartService;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
-    private CartRespsitory cartRespsitory;
+    private CartRepository cartRespsitory;
     @Autowired
     private AddressRepository addressRepository;
     @Autowired
@@ -40,11 +40,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<Orders> initiateOrder(String phoneNumber, String addressId) {
 
-        Cart cart= cartRespsitory.findById(phoneNumber).orElseThrow(()-> new DetailsNotFound("cart is empty"));
-        Address address=addressRepository.findById(addressId).orElseThrow(()->new DetailsNotFound("Address not found"));
+        Cart cart= cartRespsitory.findById(phoneNumber).orElseThrow(()-> new DetailsNotFoundException("cart is empty"));
+        Address address=addressRepository.findById(addressId).orElseThrow(()->new DetailsNotFoundException("Address not found"));
         List<DeliveryFees> deliveryFeesList = deliveryFeesRepository.findAll();
         if(deliveryFeesList.isEmpty()){
-            throw new DetailsNotFound("Delivery fee not found");
+            throw new DetailsNotFoundException("Delivery fee not found");
         }
         Integer deliveryFees = deliveryFeesList.get(0).getDeliveryFee();
         Orders orders= new Orders();
@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(orders);
         // after saving the order detials now we need to decrease the quantiy by one in the products
         for( String productId:cart.getProductsMap().keySet()){
-            Product product=productRepository.findById(productId).orElseThrow(()-> new DetailsNotFound("product not found"));
+            Product product=productRepository.findById(productId).orElseThrow(()-> new DetailsNotFoundException("product not found"));
             product.setStock(product.getStock()-cart.getProductsMap().get(productId).getQuantity());
             productRepository.save(product);
         }
@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<Orders> confirmOrder(String phoneNumber, String orderId) throws CannotModifyException {
-        Orders order=orderRepository.findById(orderId).orElseThrow(()->new DetailsNotFound("Order details are not found"));
+        Orders order=orderRepository.findById(orderId).orElseThrow(()->new DetailsNotFoundException("Order details are not found"));
         if(!Objects.equals(OrderStatus.INITIATED,order.getOrderStatus())){
             throw new CannotModifyException("Order status is "+order.getOrderStatus()+" cannot be modified");
         }
@@ -84,8 +84,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<Orders> getOrderDetails(String orderId) throws DetailsNotFound {
-        Orders order=orderRepository.findById(orderId).orElseThrow(()->new DetailsNotFound("Order details are not found"));
+    public ResponseEntity<Orders> getOrderDetails(String orderId) throws DetailsNotFoundException {
+        Orders order=orderRepository.findById(orderId).orElseThrow(()->new DetailsNotFoundException("Order details are not found"));
         return ResponseEntity.status(HttpStatus.FOUND).body(order);
     }
 
@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
                     int quantity = entry.getValue().getQuantity();
 
                     Product product = productRepository.findById(productId)
-                            .orElseThrow(() -> new DetailsNotFound("Product not found: " + productId));
+                            .orElseThrow(() -> new DetailsNotFoundException("Product not found: " + productId));
 
                     product.setStock(product.getStock() + quantity);
                     productRepository.save(product);
