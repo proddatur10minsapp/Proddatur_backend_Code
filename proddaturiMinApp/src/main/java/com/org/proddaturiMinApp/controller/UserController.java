@@ -21,12 +21,8 @@ import java.util.Objects;
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
-
     @Autowired
     private UserService userService;
-
-
-
     @PostMapping("/initial-update")
     public ResponseEntity<String> updateUser(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
