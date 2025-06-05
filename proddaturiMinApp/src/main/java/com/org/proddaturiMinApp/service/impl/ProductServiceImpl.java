@@ -2,26 +2,24 @@ package com.org.proddaturiMinApp.service.impl;
 
 import com.org.proddaturiMinApp.dto.ProductDTO;
 import com.org.proddaturiMinApp.dto.ProductInCartDTO;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.CommonException;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Cart;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.model.Product;
-import com.org.proddaturiMinApp.repository.CartRespsitory;
+import com.org.proddaturiMinApp.repository.CartRepository;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.ProductService;
 import com.org.proddaturiMinApp.utils.CommonConstants;
 import com.org.proddaturiMinApp.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 
 import java.util.*;
@@ -41,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
     private CommonUtils commonUtils;
 
     @Autowired
-    private CartRespsitory cartRespsitory;
+    private CartRepository cartRespsitory;
 
     private String ID= "id";
     private String NAME="name";
@@ -56,23 +54,23 @@ public class ProductServiceImpl implements ProductService {
     private String STOCK="stock";
     private String  CATEGORY="category";
 
-    public  Set<HashMap<String, Object>> getProducts(String categoryName,String phoneNumber) throws CommonExcepton {
+    public  Set<HashMap<String, Object>> getProducts(String categoryName,String phoneNumber) throws CommonException {
         return getFilteredProducts(categoryName, 0,CommonConstants.PAGINATION_RANGE,phoneNumber);
     }
 
-    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i,String phoneNumber) throws CommonExcepton {
+    public  Set<HashMap<String, Object>> getProductsViaNextValue(String categoryName, int i,String phoneNumber) throws CommonException {
         return getFilteredProducts(categoryName, i, CommonConstants.PAGINATION_RANGE,phoneNumber);
     }
 
 
-    public ProductDTO getProductsById(String id,String phoneNumber) throws CommonExcepton {
+    public ProductDTO getProductsById(String id,String phoneNumber) throws CommonException {
         if(Objects.isNull(id)){
             log.error("productId can't be null");
         }
         Optional<Product> product = productRepository.findById(id);
         if(product.isEmpty()){
             log.info("No product found for the product id {}",id);
-            throw new DetailsNotFound("No product found for the product id "+id);
+            throw new DetailsNotFoundException("No product found for the product id "+id);
         }
         Map<String, ProductInCartDTO> cartProductsMap=null;
         if(Objects.nonNull(phoneNumber)){
@@ -102,11 +100,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Set<HashMap<String, Object>> getProductsForTrends(String categoryName, String phoneNumber, Integer paginationRange) throws CommonExcepton {
+    public Set<HashMap<String, Object>> getProductsForTrends(String categoryName, String phoneNumber, Integer paginationRange) throws CommonException {
         return getFilteredProducts(categoryName, 0,paginationRange,phoneNumber);
     }
 
-    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int pageNumber,int paginationRange,String phoneNumber) throws CommonExcepton {
+    private Set<HashMap<String, Object>> getFilteredProducts(String categoryName, int pageNumber,int paginationRange,String phoneNumber) throws CommonException {
         Pageable pageable = PageRequest.of(pageNumber, paginationRange);
         String id =null;
         try {
@@ -114,12 +112,12 @@ public class ProductServiceImpl implements ProductService {
         }
         catch (Exception e){
             log.info("failed to get the id for categoryName {}",categoryName);
-            throw new DetailsNotFound("Details Not found for the catagory Name "+categoryName);
+            throw new DetailsNotFoundException("Details Not found for the catagory Name "+categoryName);
         }
 
         ObjectId objectId=commonUtils.convertToObjectId(id);
         if(Objects.isNull(objectId)){
-            throw new CommonExcepton("Cannot able to convert to object Id");
+            throw new CommonException("Cannot able to convert to object Id");
         }
         // for fetching the products
         Map<String, ProductInCartDTO> cartMap;
@@ -136,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
 
         Optional<Category> catagory = categoryRepository.findById(String.valueOf(product.getCategory()));
         if(catagory.isEmpty()){
-            throw new DetailsNotFound("Catagory may be deleted for the product , catagoryid {}" +product.getCategory());
+            throw new DetailsNotFoundException("Catagory may be deleted for the product , catagoryid {}" +product.getCategory());
         }
         return new ProductDTO(product,catagory.get().getName(),cartProductsMap);
     }

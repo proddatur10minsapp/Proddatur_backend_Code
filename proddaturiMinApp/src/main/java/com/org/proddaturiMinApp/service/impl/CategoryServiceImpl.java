@@ -1,6 +1,6 @@
 package com.org.proddaturiMinApp.service.impl;
 
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Category;
 import com.org.proddaturiMinApp.repository.CategoryRepository;
@@ -8,7 +8,6 @@ import com.org.proddaturiMinApp.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
         Optional<Category> catagoryObj = categoryRepository.findById(id);
         if(catagoryObj.isEmpty()){
             log.info("No Catagory present for the Id {}",id);
-            throw new DetailsNotFound("No Catagory present for the Id "+id);
+            throw new DetailsNotFoundException("No Catagory present for the Id "+id);
         }
         return catagoryObj.get();
     }
@@ -43,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
         Optional<Category> catagoryObj=categoryRepository.findByName(categoryName);
         if(catagoryObj.isEmpty()){
             log.info("No Catagory present in the name of catagory  {} ",categoryName);
-            throw new DetailsNotFound("No Catagory present in the name of catagory "+categoryName);
+            throw new DetailsNotFoundException("No Catagory present in the name of catagory "+categoryName);
         }
         return catagoryObj.get();
     }
@@ -53,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> allCategories = categoryRepository.findAll();
         if(allCategories.isEmpty()){
             log.error("There in no categories");
-            new DetailsNotFound("There in no categories");
+            new DetailsNotFoundException("There in no categories");
         }
         return allCategories;
     }

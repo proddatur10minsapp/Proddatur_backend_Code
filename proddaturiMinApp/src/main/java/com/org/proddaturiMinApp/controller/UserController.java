@@ -3,8 +3,8 @@ package com.org.proddaturiMinApp.controller;
 import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
 import com.org.proddaturiMinApp.exception.CannotModifyException;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.CommonException;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Address;
 import com.org.proddaturiMinApp.service.UserService;
@@ -21,12 +21,8 @@ import java.util.Objects;
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
-
     @Autowired
     private UserService userService;
-
-
-
     @PostMapping("/initial-update")
     public ResponseEntity<String> updateUser(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
@@ -38,14 +34,14 @@ public class UserController {
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFoundException {
 
         return userService.getUserDetails(phoneNumber);
     }
 
     // It will return the list of all the address
     @GetMapping("/address/{phoneNumber}")
-    public ResponseEntity<List<Address>> getDeliveryAddress(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+    public ResponseEntity<List<Address>> getDeliveryAddress(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFoundException {
         return ResponseEntity.ok(userService.getDeliveryAddressList(phoneNumber));
     }
 
@@ -84,7 +80,7 @@ public class UserController {
         return userService.deteteAddress(phoneNumber,addressId);
     }
     @PostMapping("/address/set-as-default/{phoneNumber}/{fromAddressId}/{toAddressId}")
-    public ResponseEntity<List<Address>> setAsDefaultUddress(@PathVariable String phoneNumber, @PathVariable String fromAddressId , @PathVariable String toAddressId) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<List<Address>> setAsDefaultUddress(@PathVariable String phoneNumber, @PathVariable String fromAddressId , @PathVariable String toAddressId) throws InputFieldRequried, CommonException {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
             throw new InputFieldRequried("Phone Number is mandatory");

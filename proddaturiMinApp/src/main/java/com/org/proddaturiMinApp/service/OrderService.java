@@ -1,7 +1,7 @@
 package com.org.proddaturiMinApp.service;
 
 import com.org.proddaturiMinApp.exception.CannotModifyException;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.model.Orders;
 import org.springframework.http.ResponseEntity;
 
@@ -12,7 +12,7 @@ public interface OrderService {
 
     ResponseEntity<Orders> confirmOrder(String mobileNumber, String orderId) throws CannotModifyException;
 
-    ResponseEntity<Orders> getOrderDetails(String orderId) throws DetailsNotFound;
+    ResponseEntity<Orders> getOrderDetails(String orderId) throws DetailsNotFoundException;
 
     ResponseEntity<List<Orders>> getAllOrderDetails(String phoneNumber);
 }
