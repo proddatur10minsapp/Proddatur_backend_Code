@@ -21,4 +21,6 @@ public class Category {
     private String image;
     private Integer categoryId;
     private String groupName;
+    private String groupImage;
+
 }
