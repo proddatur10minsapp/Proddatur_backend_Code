@@ -45,6 +45,7 @@ public class HomePageServiceImpl implements HomePageService {
         returnMap.put("priority",trends.getPriority());
         returnMap.put("categoryId",trends.getCategoryId().toString());
         returnMap.put("products",productList);
+        returnMap.put("groupName",trends.getGroupName());
         return returnMap;
     }
 
