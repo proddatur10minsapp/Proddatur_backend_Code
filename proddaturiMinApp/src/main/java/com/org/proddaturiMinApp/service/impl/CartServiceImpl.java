@@ -35,8 +35,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public ResponseEntity<Map<String, Object>> addProductToCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonException {
-        if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getCatagoryName()) || Objects.isNull(cartInputDTO.getQuantity())) {
-            throw new InputFieldRequried("productId or CagatoryName or Quantity should be not null");
+        if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getCategoryName()) || Objects.isNull(cartInputDTO.getQuantity())) {
+            throw new InputFieldRequried("productId or CategoryName or Quantity should be not null");
         }
         Cart cart = cartRepository.findById(phoneNumber).orElseGet(() -> {
             Cart newCart = new Cart();
@@ -51,7 +51,7 @@ public class CartServiceImpl implements CartService {
 
         ProductInCartDTO productInCart = new ProductInCartDTO();
         productInCart.setId(cartInputDTO.getProductId());
-        productInCart.setCategoryName(cartInputDTO.getCatagoryName());
+        productInCart.setCategoryName(cartInputDTO.getCategoryName());
         productInCart.setQuantity(cartInputDTO.getQuantity());
         updateProductInCartDTO(productInCart);
         productInCart.setUpdatedAt(LocalDateTime.now());
