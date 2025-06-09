@@ -29,5 +29,6 @@ public class Banner {
     private String categoryName;
     private Date createdAt;
     private Date updatedAt;
+    private String groupName;
 }
 
