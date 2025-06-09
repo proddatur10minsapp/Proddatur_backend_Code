@@ -1,7 +1,7 @@
 package com.org.proddaturiMinApp.controller;
 
 import com.org.proddaturiMinApp.dto.CartInputDTO;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
+import com.org.proddaturiMinApp.exception.CommonException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Cart;
 import com.org.proddaturiMinApp.service.CartService;
@@ -20,7 +20,7 @@ public class CartController {
 
     // this api can be used to add to cart and incremnt the product in the all pages except Cart
     @PostMapping("/add/{phoneNumber}")
-    public ResponseEntity<Map<String, Object>> addProductToCart(@PathVariable(value ="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Map<String, Object>> addProductToCart(@PathVariable(value ="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonException {
         if(Objects.isNull(cartInputDTO)){
             throw new InputFieldRequried("method body cannot be null");
         }
@@ -36,7 +36,7 @@ public class CartController {
     }
 
     @PostMapping("/update/{phoneNumber}")
-    public ResponseEntity<Cart> incremtentProduct(@PathVariable(value="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Cart> incremtentProduct(@PathVariable(value="phoneNumber")String phoneNumber, @RequestBody CartInputDTO cartInputDTO) throws InputFieldRequried, CommonException {
         if(Objects.isNull(cartInputDTO)){
             throw new InputFieldRequried("method body cannot be null");
         }

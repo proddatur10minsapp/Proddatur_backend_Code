@@ -2,12 +2,12 @@ package com.org.proddaturiMinApp.service.impl;
 
 import com.org.proddaturiMinApp.dto.CartInputDTO;
 import com.org.proddaturiMinApp.dto.ProductInCartDTO;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.CommonException;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Cart;
 import com.org.proddaturiMinApp.model.Product;
-import com.org.proddaturiMinApp.repository.CartRespsitory;
+import com.org.proddaturiMinApp.repository.CartRepository;
 import com.org.proddaturiMinApp.repository.ProductRepository;
 import com.org.proddaturiMinApp.service.CartService;
 import com.org.proddaturiMinApp.utils.CommonConstants;
@@ -28,24 +28,24 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     @Autowired
-    private CartRespsitory cartRespsitory;
+    private CartRepository cartRepository;
     @Autowired
     private ProductRepository productRepository;
 
 
     @Override
-    public ResponseEntity<Map<String, Object>> addProductToCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Map<String, Object>> addProductToCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonException {
         if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getCatagoryName()) || Objects.isNull(cartInputDTO.getQuantity())) {
             throw new InputFieldRequried("productId or CagatoryName or Quantity should be not null");
         }
-        Cart cart = cartRespsitory.findById(phoneNumber).orElseGet(() -> {
+        Cart cart = cartRepository.findById(phoneNumber).orElseGet(() -> {
             Cart newCart = new Cart();
             newCart.setId(phoneNumber);
             newCart.setPhoneNumber(phoneNumber);
             return newCart;
         });
         if (Objects.nonNull(cart.getProductsMap()) && cart.getProductsMap().containsKey(cartInputDTO.getProductId())) {
-            throw new CommonExcepton("Product is already Exist in Cast , please go to cart");
+            throw new CommonException("Product is already Exist in Cast , please go to cart");
         }
         cart.setUpdatedAt(LocalDateTime.now());
 
@@ -62,7 +62,7 @@ public class CartServiceImpl implements CartService {
         productsMap.put(String.valueOf(productInCart.getId()), productInCart);
 
         updateCart(cart, productsMap);
-        cartRespsitory.save(cart);
+        cartRepository.save(cart);
         Map<String, Object> reponse = new HashMap<>();
         reponse.put("message", "Product add to cart Successfully");
         reponse.put("totalProductsInCart", cart.getTotalItemsInCart());
@@ -71,14 +71,14 @@ public class CartServiceImpl implements CartService {
 
 
     public ResponseEntity<Cart> getAllItemsInCart(String phoneNumber) {
-        Optional<Cart> optionalCart = cartRespsitory.findById(phoneNumber);
+        Optional<Cart> optionalCart = cartRepository.findById(phoneNumber);
         if (optionalCart.isEmpty()) {
-            throw new DetailsNotFound("Cart is Empty");
+            throw new DetailsNotFoundException("Cart is Empty");
         }
          Cart cart = optionalCart.get();
 
         if (Objects.isNull(cart.getProductsMap()) || cart.getProductsMap().isEmpty()) {
-            throw new DetailsNotFound("Cart is Empty");
+            throw new DetailsNotFoundException("Cart is Empty");
         }
         Map<String, ProductInCartDTO> productsMap = cart.getProductsMap();
         productsMap.keySet().forEach(key -> {
@@ -90,14 +90,14 @@ public class CartServiceImpl implements CartService {
 
     }
 
-    public ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonExcepton {
+    public ResponseEntity<Cart> updatePoductInCart(String phoneNumber, CartInputDTO cartInputDTO) throws InputFieldRequried, CommonException {
         if (Objects.isNull(cartInputDTO.getProductId()) || Objects.isNull(cartInputDTO.getQuantity())) {
             throw new InputFieldRequried("productId or CagatoryName or Quantity should be not null");
         }
-        Cart cart = cartRespsitory.findById(phoneNumber).get();
+        Cart cart = cartRepository.findById(phoneNumber).get();
 
         if (Objects.isNull(cart.getProductsMap()) || cart.getProductsMap().isEmpty() || !cart.getProductsMap().containsKey(String.valueOf(cartInputDTO.getProductId()))) {
-            throw new CommonExcepton("Product is dose not Exist in Cart , please add product first");
+            throw new CommonException("Product is dose not Exist in Cart , please add product first");
         }
 
         Map<String, ProductInCartDTO> productsMap = cart.getProductsMap();
@@ -114,7 +114,7 @@ public class CartServiceImpl implements CartService {
 
         updateCart(cart, productsMap);
         cart.setUpdatedAt(LocalDateTime.now());
-        cartRespsitory.save(cart);
+        cartRepository.save(cart);
         log.info("Product add to cart :{}", cart);
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
     }
@@ -122,8 +122,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public ResponseEntity<Map<String, Object>> getTotalNumberOfProductsInCart(String phoneNumber) {
 
-        int totalProductsInCart= cartRespsitory.findById(phoneNumber)
-                .map(cart -> cart.getProductsMap().size())
+        int totalProductsInCart = cartRepository.findById(phoneNumber)
+                .map(cart -> {
+                    if (Objects.isNull(cart.getProductsMap())) {
+                        return 0;
+                    }
+                    return cart.getProductsMap().size();
+                })
                 .orElseGet(() -> 0);
 
         Map<String, Object> reponse = new HashMap<>();
@@ -131,11 +136,23 @@ public class CartServiceImpl implements CartService {
         return ResponseEntity.ok(reponse);
     }
 
+    @Override
+    public boolean emptyCart(String phoneNumber) {
+        Cart cart = cartRepository.findById(phoneNumber).get();
+        cart.setProductsMap(null);
+        cart.setTotalItemsInCart(0);
+        cart.setCurrentTotalPrice(0.0);
+        cart.setDiscountedAmount(0.0);
+        cart.setTotalPrice(0.0);
+        cartRepository.save(cart);
+        return true;
+    }
+
 
     private ProductInCartDTO updateProductInCartDTO(ProductInCartDTO productInCart) {
         Optional<Product> productDetails = productRepository.findById(String.valueOf(productInCart.getId()));
         if (productDetails.isEmpty()) {
-            throw new DetailsNotFound("No Prouduct Found for id " + productInCart.getId());
+            throw new DetailsNotFoundException("No Prouduct Found for id " + productInCart.getId());
         }
         Product product = productDetails.get();
         productInCart.setId(product.getId());

@@ -3,8 +3,8 @@ package com.org.proddaturiMinApp.service.impl;
 import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
 import com.org.proddaturiMinApp.exception.CannotModifyException;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.CommonException;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Address;
 import com.org.proddaturiMinApp.repository.AddressRepository;
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
    @Autowired
-    UserRepository userRepository;
+   private UserRepository userRepository;
 
    @Autowired
-    AddressRepository addressRepository;
+   private AddressRepository addressRepository;
 
     // this getUserDetails method is used to fetch the user details based on the user
     @Override
-    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(String phoneNumber) throws InputFieldRequried, DetailsNotFoundException {
         if(Objects.isNull(phoneNumber)){
             log.info("Mobile Number is mandatory");
             throw new InputFieldRequried("Mobile Number is mandatory");
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",phoneNumber);
-            throw new DetailsNotFound(new StringBuilder().append("User Not found for: ").append(phoneNumber).toString());
+            throw new DetailsNotFoundException(new StringBuilder().append("User Not found for: ").append(phoneNumber).toString());
         }
         User user= optionalUser.get();
         UserDetailsOutputDTO userDetailsOutputDTO=new UserDetailsOutputDTO();
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",userInputDTO.getPhoneNumber());
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         if(Objects.nonNull(userInputDTO.getUserName())) {
@@ -93,12 +93,12 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",phoneNumber);
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         Map<String, String> allAddress = user.getAddress();
         if(Objects.isNull(allAddress)){
-            throw new DetailsNotFound("No address Found for the User  "+user.getPhoneNumber());
+            throw new DetailsNotFoundException("No address Found for the User  "+user.getPhoneNumber());
         }
         List<Address> addressList = allAddress.values().stream()
                 .map(addressRepository::findById)
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
 
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",userInputDTO.getPhoneNumber());
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         Address address = userInputDTO.getAddress();
@@ -156,12 +156,12 @@ public class UserServiceImpl implements UserService {
 
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",phoneNumber);
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         if(!user.getAddress().containsValue(addressId)){
             log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
-            throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
+            throw new DetailsNotFoundException("Address Not found "+ phoneNumber+" addressid "+ addressId);
         }
 
         Address address = addressRepository.findById(addressId).get();
@@ -187,12 +187,12 @@ public class UserServiceImpl implements UserService {
 
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",phoneNumber);
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         if(!user.getAddress().containsValue(addressId)){
             log.error("User address not found with the address id {} address {}",phoneNumber,addressId);
-            throw new DetailsNotFound("Address Not found "+ phoneNumber+" addressid "+ addressId);
+            throw new DetailsNotFoundException("Address Not found "+ phoneNumber+" addressid "+ addressId);
         }
 
         Address address=addressRepository.findById(addressId).get();
@@ -206,36 +206,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<Address>> setAsDefaultUddress(String phoneNumber, String fromAddressId, String toAddressId) throws CommonExcepton, InputFieldRequried {
+    public ResponseEntity<List<Address>> setAsDefaultUddress(String phoneNumber, String fromAddressId, String toAddressId) throws CommonException, InputFieldRequried {
         if(fromAddressId.equals(toAddressId)){
             log.info("Both from and to address to set as default is same ,please check");
-            throw new CommonExcepton("Both from and to address to set as default is same ,please check");
+            throw new CommonException("Both from and to address to set as default is same ,please check");
         }
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
 
         if(optionalUser.isEmpty()){
             log.error("User Not found for: {}",phoneNumber);
-            throw new DetailsNotFound("User Not found");
+            throw new DetailsNotFoundException("User Not found");
         }
         User user=optionalUser.get();
         log.info("fetched user details are {} ",optionalUser.get());
         if(!user.getAddress().containsValue(fromAddressId)){
             log.error("User address not found with the fromAddress id {} address {}",phoneNumber,fromAddressId);
-            throw new DetailsNotFound("Address Not found "+ phoneNumber+" fromSddressid "+ fromAddressId);
+            throw new DetailsNotFoundException("Address Not found "+ phoneNumber+" fromSddressid "+ fromAddressId);
         }
         if(!user.getAddress().containsValue(toAddressId)){
             log.error("User address not found with the toAddressId id {} address {}",phoneNumber,toAddressId);
-            throw new DetailsNotFound("Address Not found "+ phoneNumber+" toAddressId "+ toAddressId);
+            throw new DetailsNotFoundException("Address Not found "+ phoneNumber+" toAddressId "+ toAddressId);
         }
         Address fromAddress=addressRepository.findById(fromAddressId).get();
         if(!fromAddress.getIsDefault()){
             log.info("formAddress is not a default addresss {} : {}",phoneNumber,fromAddress);
-            throw new CommonExcepton("formAddress is not a default addresss");
+            throw new CommonException("formAddress is not a default addresss");
         }
         Address toAddress=addressRepository.findById(toAddressId).get();
         if(toAddress.getIsDefault()){
             log.info("toAddress is already  default addresss {} : {}",phoneNumber,fromAddress);
-            throw new CommonExcepton("toAddress is already  default addresss");
+            throw new CommonException("toAddress is already  default addresss");
         }
         fromAddress.setIsDefault(false);
         toAddress.setIsDefault(true);

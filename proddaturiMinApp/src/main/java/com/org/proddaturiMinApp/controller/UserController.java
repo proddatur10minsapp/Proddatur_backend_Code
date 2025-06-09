@@ -3,8 +3,8 @@ package com.org.proddaturiMinApp.controller;
 import com.org.proddaturiMinApp.dto.UserDetailsOutputDTO;
 import com.org.proddaturiMinApp.dto.UserInputDTO;
 import com.org.proddaturiMinApp.exception.CannotModifyException;
-import com.org.proddaturiMinApp.exception.CommonExcepton;
-import com.org.proddaturiMinApp.exception.DetailsNotFound;
+import com.org.proddaturiMinApp.exception.CommonException;
+import com.org.proddaturiMinApp.exception.DetailsNotFoundException;
 import com.org.proddaturiMinApp.exception.InputFieldRequried;
 import com.org.proddaturiMinApp.model.Address;
 import com.org.proddaturiMinApp.service.UserService;
@@ -21,13 +21,9 @@ import java.util.Objects;
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
-
     @Autowired
-    UserService userService;
-
-
-
-    @PostMapping("/initialUpdate")
+    private UserService userService;
+    @PostMapping("/initial-update")
     public ResponseEntity<String> updateUser(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
             log.info("Phone Number is mandatory");
@@ -38,21 +34,21 @@ public class UserController {
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+    public ResponseEntity<UserDetailsOutputDTO> getUserDetails(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFoundException {
 
         return userService.getUserDetails(phoneNumber);
     }
 
     // It will return the list of all the address
-    @GetMapping("/Address/{phoneNumber}")
-    public ResponseEntity<List<Address>> getDeliveryAddress(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFound {
+    @GetMapping("/address/{phoneNumber}")
+    public ResponseEntity<List<Address>> getDeliveryAddress(@PathVariable String phoneNumber) throws InputFieldRequried, DetailsNotFoundException {
         return ResponseEntity.ok(userService.getDeliveryAddressList(phoneNumber));
     }
 
     // add an new address to the user and check it is primary or not , if it is primary address add it
     // to user
 
-    @PostMapping("/Address/addNew")
+    @PostMapping("/address/add-new")
     public ResponseEntity<UserDetailsOutputDTO> addNewAddress(@RequestBody UserInputDTO userInputDTO) throws InputFieldRequried {
         if(Objects.isNull(userInputDTO.getPhoneNumber())){
             log.info("Phone Number is mandatory");
@@ -62,7 +58,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/Address/edit/{phoneNumber}/{addressId}")
+    @PostMapping("/address/edit/{phoneNumber}/{addressId}")
     public ResponseEntity<Address> editAddress(@PathVariable String phoneNumber,@PathVariable String addressId,@RequestBody Address updatedAddress) throws InputFieldRequried {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
@@ -71,7 +67,7 @@ public class UserController {
         return userService.editAddress(phoneNumber,addressId,updatedAddress);
     }
 
-    @DeleteMapping("/Address/delete/{phoneNumber}/{addressId}")
+    @DeleteMapping("/address/delete/{phoneNumber}/{addressId}")
     public ResponseEntity deleteAddress(@PathVariable String phoneNumber, @PathVariable String addressId) throws InputFieldRequried, CannotModifyException {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
@@ -83,8 +79,8 @@ public class UserController {
         }
         return userService.deteteAddress(phoneNumber,addressId);
     }
-    @PostMapping("/Address/setAsDefault/{phoneNumber}/{fromAddressId}/{toAddressId}")
-    public ResponseEntity<List<Address>> setAsDefaultUddress(@PathVariable String phoneNumber, @PathVariable String fromAddressId , @PathVariable String toAddressId) throws InputFieldRequried, CommonExcepton {
+    @PostMapping("/address/set-as-default/{phoneNumber}/{fromAddressId}/{toAddressId}")
+    public ResponseEntity<List<Address>> setAsDefaultUddress(@PathVariable String phoneNumber, @PathVariable String fromAddressId , @PathVariable String toAddressId) throws InputFieldRequried, CommonException {
         if(Objects.isNull(phoneNumber)){
             log.info("Phone Number is mandatory");
             throw new InputFieldRequried("Phone Number is mandatory");

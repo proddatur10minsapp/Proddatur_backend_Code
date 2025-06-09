@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.org.proddaturiMinApp.model.Product;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDTO {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
@@ -57,6 +59,5 @@ public class ProductDTO {
                 quantityInCart = cartProductsMap.get(product.getId().toString()).getQuantity();
             }
         }
-
     }
 }
