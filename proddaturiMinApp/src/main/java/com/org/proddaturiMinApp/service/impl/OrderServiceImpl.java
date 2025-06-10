@@ -99,23 +99,23 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<List<Orders>> getAllOrderDetails(String phoneNumber) {
         Pageable pageable= PageRequest.ofSize(CommonConstants.ORDER_PAGINATION_RANGE);
        return ResponseEntity.status(HttpStatus.FOUND).body(orderRepository.findByPhoneNumber(phoneNumber,pageable));
+
     }
 
     @Override
     public ResponseEntity<Set<Map<Object, Object>>> getCurrentOrders(String phoneNumber) {
         Query query = new Query();
         query.addCriteria(Criteria.where("phoneNumber").is(phoneNumber));
-        query.addCriteria(Criteria.where("orderStatus").in(OrderStatus.PENDING,OrderStatus.CONFIRMED,OrderStatus.SHIPPED));
+        query.addCriteria(Criteria.where("orderStatus").in(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.SHIPPED));
         List<Orders> orders = mongoTemplate.find(query, Orders.class);
 
-        return ResponseEntity.ok(orders.stream().map(order ->{
-            Map<Object,Object> map=new HashMap<>();
-            map.put("id",order.getId());
-            map.put("orderStatus",order.getOrderStatus());
+        return ResponseEntity.ok(orders.stream().map(order -> {
+            Map<Object, Object> map = new HashMap<>();
+            map.put("id", order.getId());
+            map.put("orderStatus", order.getOrderStatus());
             return map;
-        } ).collect(Collectors.toSet()));
+        }).collect(Collectors.toSet()));
     }
-
 
 
     @Scheduled(fixedRate = 300000) // every 5 minutes , it is 1000 milli seconds , which here is 300 seconds
