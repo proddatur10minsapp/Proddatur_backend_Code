@@ -14,6 +14,9 @@ import com.org.proddaturiMinApp.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -36,6 +40,9 @@ public class OrderServiceImpl implements OrderService {
     private ProductRepository productRepository;
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
     @Override
     public ResponseEntity<Orders> initiateOrder(String phoneNumber, String addressId) {
 
@@ -91,7 +98,22 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<List<Orders>> getAllOrderDetails(String phoneNumber) {
         Pageable pageable= PageRequest.ofSize(CommonConstants.ORDER_PAGINATION_RANGE);
-       return ResponseEntity.status(HttpStatus.FOUND).body(orderRepository.findByphoneNumber(phoneNumber,pageable));
+       return ResponseEntity.status(HttpStatus.FOUND).body(orderRepository.findByPhoneNumber(phoneNumber,pageable));
+    }
+
+    @Override
+    public ResponseEntity<Set<Map<Object, Object>>> getCurrentOrders(String phoneNumber) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phoneNumber").is(phoneNumber));
+        query.addCriteria(Criteria.where("orderStatus").in(OrderStatus.PENDING,OrderStatus.CONFIRMED,OrderStatus.SHIPPED));
+        List<Orders> orders = mongoTemplate.find(query, Orders.class);
+
+        return ResponseEntity.ok(orders.stream().map(order ->{
+            Map<Object,Object> map=new HashMap<>();
+            map.put("id",order.getId());
+            map.put("orderStatus",order.getOrderStatus());
+            return map;
+        } ).collect(Collectors.toSet()));
     }
 
 

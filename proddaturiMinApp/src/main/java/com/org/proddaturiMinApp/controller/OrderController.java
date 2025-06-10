@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/orders")
@@ -34,5 +36,10 @@ public class OrderController {
     public ResponseEntity<List<Orders>> getAllOrderDetails(@PathVariable(value = "phoneNumber") String phoneNumber) {
         return orderService.getAllOrderDetails(phoneNumber);
     }
+    @GetMapping("{phoneNumber}/current")
+    public ResponseEntity<Set<Map<Object, Object>>> getCurrentOrders(@PathVariable(value = "phoneNumber") String phoneNumber) {
+        return orderService.getCurrentOrders(phoneNumber);
+    }
+
 
 }
