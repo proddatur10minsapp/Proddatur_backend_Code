@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.model;
 
+import com.org.proddaturiMinApp.dto.OrdersCartDTO;
 import com.org.proddaturiMinApp.emums.OrderStatus;
 import com.org.proddaturiMinApp.emums.PaymentMethod;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 public class Orders {
     @Id
     private String id;
-    private Cart cart;
+    private OrdersCartDTO OrdersCartDTO;
     private Double deliveryCharges;
     private Double totalPayable;
     private Address deliveryAddress;
