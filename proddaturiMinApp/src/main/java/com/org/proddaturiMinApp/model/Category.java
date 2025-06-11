@@ -22,5 +22,4 @@ public class Category {
     private Integer categoryId;
     private String groupName;
     private String groupImage;
-
 }

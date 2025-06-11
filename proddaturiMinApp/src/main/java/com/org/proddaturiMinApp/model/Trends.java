@@ -20,4 +20,5 @@ public class Trends {
     private String categoryName;
     private String backgroundImage;
     private Integer priority;
+    private String groupName;
 }

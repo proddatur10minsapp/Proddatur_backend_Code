@@ -7,9 +7,8 @@ import org.bson.types.ObjectId;
 
 @Data
 public class CartInputDTO {
-    private String catagoryName;
+    private String categoryName;
     @JsonSerialize(using= ToStringSerializer.class)
     private ObjectId productId;
-    // not needed Now
     private Integer quantity;
 }
