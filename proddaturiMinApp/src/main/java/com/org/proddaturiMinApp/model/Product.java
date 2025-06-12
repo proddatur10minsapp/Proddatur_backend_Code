@@ -33,5 +33,5 @@ public class Product {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
     private Integer productId;
-
+    private String groupName;
 }

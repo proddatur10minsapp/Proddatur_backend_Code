@@ -32,6 +32,7 @@ public class ProductDTO {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId category;
     private String categoryName;
+    private String groupName;
     private Boolean isPresentInWishList=false;
     private Boolean isPresentInCart=false;
     private Integer quantityInCart=0;
@@ -50,6 +51,7 @@ public class ProductDTO {
         this.stock=product.getStock();
         this.category=product.getCategory();
         this.categoryName=categoryName;
+        this.groupName=product.getGroupName();
 
         // now need to check the cart is null or not if not null if the products present in the cart need to update here
         if (Objects.nonNull(cartProductsMap)) {
