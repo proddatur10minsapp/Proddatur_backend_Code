@@ -1,5 +1,6 @@
 package com.org.proddaturiMinApp.service.impl;
 
+import com.org.proddaturiMinApp.dto.OrdersCartDTO;
 import com.org.proddaturiMinApp.dto.ProductInCartDTO;
 import com.org.proddaturiMinApp.emums.OrderStatus;
 import com.org.proddaturiMinApp.emums.PaymentMethod;
@@ -13,16 +14,18 @@ import com.org.proddaturiMinApp.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
@@ -37,6 +40,9 @@ public class OrderServiceImpl implements OrderService {
     private ProductRepository productRepository;
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
     @Override
     public ResponseEntity<Orders> initiateOrder(String phoneNumber, String addressId) {
 
@@ -51,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setId(UUID.randomUUID().toString());
         orders.setPhoneNumber(phoneNumber);
         orders.setOrderStatus(OrderStatus.INITIATED);
-        orders.setCart(cart);
+        orders.setOrdersCartDTO(new OrdersCartDTO(cart));
         orders.setDeliveryAddress(address);
         // need to update in future
         orders.setPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
@@ -92,7 +98,23 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<List<Orders>> getAllOrderDetails(String phoneNumber) {
         Pageable pageable= PageRequest.ofSize(CommonConstants.ORDER_PAGINATION_RANGE);
-       return ResponseEntity.status(HttpStatus.FOUND).body(orderRepository.findByphoneNumber(phoneNumber,pageable));
+       return ResponseEntity.status(HttpStatus.FOUND).body(orderRepository.findByPhoneNumber(phoneNumber,pageable));
+
+    }
+
+    @Override
+    public ResponseEntity<Set<Map<Object, Object>>> getCurrentOrders(String phoneNumber) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phoneNumber").is(phoneNumber));
+        query.addCriteria(Criteria.where("orderStatus").in(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.SHIPPED));
+        List<Orders> orders = mongoTemplate.find(query, Orders.class);
+
+        return ResponseEntity.ok(orders.stream().map(order -> {
+            Map<Object, Object> map = new HashMap<>();
+            map.put("id", order.getId());
+            map.put("orderStatus", order.getOrderStatus());
+            return map;
+        }).collect(Collectors.toSet()));
     }
 
 
@@ -101,14 +123,13 @@ public class OrderServiceImpl implements OrderService {
         List<Orders> staleOrders = orderRepository.findByOrderStatus(OrderStatus.INITIATED);
         for (Orders order : staleOrders) {
             if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(15))) {
-                Map<String, ProductInCartDTO> productsMap = order.getCart().getProductsMap();
-                if(Objects.isNull(productsMap)||productsMap.isEmpty()){
+                Collection<ProductInCartDTO> productsList = order.getOrdersCartDTO().getProductsList();
+                if(Objects.isNull(productsList)||productsList.isEmpty()){
                     continue;
                 }
-                for (Map.Entry<String, ProductInCartDTO> entry : productsMap.entrySet()) {
-                    String productId = entry.getKey();
-                    int quantity = entry.getValue().getQuantity();
-
+                for(ProductInCartDTO productInCart : productsList){
+                    String productId = productInCart.getId().toString();
+                    int quantity = productInCart.getQuantity();
                     Product product = productRepository.findById(productId)
                             .orElseThrow(() -> new DetailsNotFoundException("Product not found: " + productId));
 

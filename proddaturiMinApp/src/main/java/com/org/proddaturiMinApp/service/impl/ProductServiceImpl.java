@@ -53,6 +53,8 @@ public class ProductServiceImpl implements ProductService {
     private String SPECIFICATIONS="specifications";
     private String STOCK="stock";
     private String  CATEGORY="category";
+    private String  GROUP_NAME="groupName";
+
 
     public  Set<HashMap<String, Object>> getProducts(String categoryName,String phoneNumber) throws CommonException {
         return getFilteredProducts(categoryName, 0,CommonConstants.PAGINATION_RANGE,phoneNumber);
@@ -149,6 +151,7 @@ public class ProductServiceImpl implements ProductService {
         returnProductMap.put(QUANTITY,product.getQuantity());
         returnProductMap.put(STOCK,product.getStock());
         returnProductMap.put(CATEGORY,product.getCategory().toString());
+        returnProductMap.put(GROUP_NAME,product.getGroupName());
 
         returnProductMap.put("isPresentInWishList",CommonConstants.FALSE);
         returnProductMap.put("isPresentInCart",CommonConstants.FALSE);
